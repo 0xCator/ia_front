@@ -1,13 +1,10 @@
 import React from 'react';
-import RegistrationForm from './Components/Forms/RegisterationForm/RegisterationForm';
-import LoginForm from './Components/Forms/LoginForm/LoginForm';
-import LandingPage from './Components/LandingPage/LandingPage';
+import { Outlet } from 'react-router-dom';
 
 function App() {
   return (
     <>
-      <LoginForm />
-      <RegistrationForm />
+      <Outlet/>
     </>
   );
 }

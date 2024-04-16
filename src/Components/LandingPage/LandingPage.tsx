@@ -9,7 +9,7 @@ const LandingPage = () => {
             <nav className="navbar">
                 <ul>
                     <li><Link to="/login">Login</Link></li>
-                    <li><Link to="/signup">Sign up</Link></li>
+                    <li><Link to="/register">Sign up</Link></li>
                 </ul>
             </nav>
             <div className="content">
