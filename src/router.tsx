@@ -3,8 +3,9 @@ import LoginForm from "./Components/Forms/LoginForm/LoginForm";
 import RegistrationForm from "./Components/Forms/RegisterationForm/RegisterationForm";
 import LandingPage from "./Components/LandingPage/LandingPage";
 import { Dashboards } from "./Components/MainDashboard/Dashboards/Dashboards";
+import ProjectSettings from "./Components/MainDashboard/Dashboards/ProjectSettings/ProjectSettings";
 import { ProjectView } from "./Components/MainDashboard/ProjectView/ProjectView";
-
+ 
 
 const { createBrowserRouter } = require("react-router-dom");
 
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
             {
                 path: "/project/:id", // localhost:3000/project/1
                 element: <ProjectView />
+            },
+            {
+                path: "/dashboard/", // localhost:3000/project/1
+                element:    <ProjectSettings projectName={"Ahmad"} />
             }
         ]
     }
