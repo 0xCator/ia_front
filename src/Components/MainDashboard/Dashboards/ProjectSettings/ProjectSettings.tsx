@@ -1,11 +1,14 @@
+// ProjectSettings.tsx
+
 import React, { useState, useEffect } from 'react';
 import './ProjectSettings.css'; // Import CSS file
 
 interface ProjectSettingsProps {
     projectName: string;
+    onClose: () => void; // Callback to close the settings
 }
 
-const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectName }) => {
+const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectName, onClose }) => {
     const [developers, setDevelopers] = useState<string[]>([]);
     const [newDeveloper, setNewDeveloper] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -50,26 +53,31 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectName }) => {
     };
 
     return (
-        <div className="project-settings-container">
-            <h2>Project Settings - {projectName}</h2>
-            <h3>Developers Assigned:</h3>
-            {loading ? (
-                <p>Loading developers...</p>
-            ) : (
-                <ul className="developers-list">
-                    {developers.map((developer, index) => (
-                        <li key={index}>{developer}</li>
-                    ))}
-                </ul>
-            )}
-            <div className="add-developer">
-                <input
-                    type="text"
-                    value={newDeveloper}
-                    onChange={(e) => setNewDeveloper(e.target.value)}
-                    placeholder="Enter developer name"
-                />
-                <button onClick={handleAddDeveloper}>Add Developer</button>
+        <div className="project-settings-overlay">
+            <div className="project-settings-container">
+                <h2>Project Settings - {projectName}</h2>
+                <button onClick={onClose}>Close</button>
+                <div className="developers-card">
+                    <h3>Developers Assigned:</h3>
+                    {loading ? (
+                        <p>Loading developers...</p>
+                    ) : (
+                        <ul className="developers-list">
+                            {developers.map((developer, index) => (
+                                <li key={index}>{developer}</li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+                <div className="add-developer">
+                    <input
+                        type="text"
+                        value={newDeveloper}
+                        onChange={(e) => setNewDeveloper(e.target.value)}
+                        placeholder="Enter developer name"
+                    />
+                    <button onClick={handleAddDeveloper}>Add Developer</button>
+                </div>
             </div>
         </div>
     );
