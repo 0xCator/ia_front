@@ -1,3 +1,5 @@
+// ProjectCard.tsx
+
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -9,34 +11,36 @@ interface ProjectCardProps {
     projectName: string;
     state: number; // Add state property
     onShowSettings: (projectName: string) => void;
+    onAssign: (projectName: string) => void; // Callback function for assigning project
+    onDelete: (projectName: string) => void; // Callback function for deleting project
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ projectName, state, onShowSettings }) => {
-    const handleAcceptRequest = async (projectName: string) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ projectName, state, onShowSettings, onAssign, onDelete }) => {
+    const handleAcceptRequest = async () => {
         try {
             // Make POST request to backend API to accept request
-            const response = await fetch(`/api/projects/${projectName}/accept`, {
-                method: 'POST'
+            await fetch(`/api/projects/${projectName}/assign`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ projectName })
             });
-            if (!response.ok) {
-                throw new Error('Failed to accept request');
-            }
-            // Handle success as needed (e.g., update UI)
+            // Update projects after assignment
+            onAssign(projectName);
         } catch (error) {
             console.error('Error accepting request:', error);
         }
     };
 
-    const handleRejectRequest = async (projectName: string) => {
+    const handleRejectRequest = async () => {
         try {
-            // Make POST request to backend API to reject request
-            const response = await fetch(`/api/projects/${projectName}/reject`, {
-                method: 'POST'
+            // Make DELETE request to backend API to reject request
+            await fetch(`/api/projects/${projectName}`, {
+                method: 'DELETE'
             });
-            if (!response.ok) {
-                throw new Error('Failed to reject request');
-            }
-            // Handle success as needed (e.g., update UI)
+            // Update projects after rejection
+            onDelete(projectName);
         } catch (error) {
             console.error('Error rejecting request:', error);
         }
@@ -75,8 +79,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ projectName, state, onShowSet
                     <Card.Body>
                         <Card.Title>{projectName}</Card.Title>
                         <div className="project-card-buttons">
-                            <Button className = "accept" onClick={() => handleAcceptRequest(projectName)}>Accept</Button>
-                            <Button className = "reject" onClick={() => handleRejectRequest(projectName)}>Reject</Button>
+                            <Button className="accept" onClick={handleAcceptRequest}>Accept</Button>
+                            <Button className="reject" onClick={handleRejectRequest}>Reject</Button>
                         </div>
                     </Card.Body>
                 </Card>
@@ -91,3 +95,4 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ projectName, state, onShowSet
 }
 
 export default ProjectCard;
+

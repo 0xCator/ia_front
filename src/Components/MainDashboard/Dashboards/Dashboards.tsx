@@ -20,12 +20,12 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         const fetchProjects = async () => {
             const fakeProjects: Project[] = [
-                { id: 1, name: 'Abdo\'s 0 Projects', state: 0 },
-                { id: 2, name: 'Abdo\'s 1 Projects', state: 1 },
-                { id: 3, name: 'Abdo\'s 2 Projects', state: 2 },      
-                { id: 1, name: 'Abdo\'s 0 Projects', state: 0 },
-                { id: 2, name: 'Abdo\'s 1 Projects', state: 1 },
-                { id: 3, name: 'Abdo\'s 2 Projects', state: 2 },         
+                { id: 1, name: 'Project 1', state: 0 },
+                { id: 2, name: 'Project 2', state: 1 },
+                { id: 3, name: 'Project 3', state: 2 },      
+                { id: 4, name: 'Project 4', state: 0 },
+                { id: 5, name: 'Project 5', state: 1 },
+                { id: 6, name: 'Project 6', state: 2 },         
             ];
             setProjects(fakeProjects);
             try {
@@ -50,6 +50,43 @@ const Dashboard: React.FC = () => {
         setSelectedProject('');
     };
 
+    const handleAssignProject = async (projectName: string) => {
+        try {
+            // Make POST request to backend API to assign project
+            await fetch(`/api/projects/${projectName}/assign`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ projectName })
+            });
+            // Update projects after assignment
+            const updatedProjects = projects.map(project => {
+                if (project.name === projectName) {
+                    return { ...project, state: 1 };
+                }
+                return project;
+            });
+            setProjects(updatedProjects);
+        } catch (error) {
+            console.error('Error assigning project:', error);
+        }
+    };
+
+    const handleDeleteProject = async (projectName: string) => {
+        try {
+            // Make DELETE request to backend API to delete project
+            await fetch(`/api/projects/${projectName}`, {
+                method: 'DELETE'
+            });
+            // Update projects after deletion
+            const updatedProjects = projects.filter(project => project.name !== projectName);
+            setProjects(updatedProjects);
+        } catch (error) {
+            console.error('Error deleting project:', error);
+        }
+    };
+
     const teamLeaderProjects = projects.filter(project => project.state === 0);
     const assignedDeveloperProjects = projects.filter(project => project.state === 1);
     const requestProjects = projects.filter(project => project.state === 2);
@@ -65,33 +102,39 @@ const Dashboard: React.FC = () => {
                         <div className="project-cards-wrapper" style={{ display: 'flex', flexWrap: 'wrap' }}> 
                             {teamLeaderProjects.map(project => (
                               <ProjectCard 
-                                key={project.id} 
-                                projectName={project.name} 
-                                state={project.state} 
-                                onShowSettings={handleShowProjectSettings} 
-                              />
+                              key={project.id} 
+                              projectName={project.name} 
+                              state={project.state} 
+                              onShowSettings={handleShowProjectSettings}
+                              onAssign={handleAssignProject} // Make sure to pass onAssign prop
+                              onDelete={handleDeleteProject} // Make sure to pass onDelete prop
+                          />
                             ))}
                         </div>
                         <h2>Assigned Developer Projects</h2>
                         <div className="project-cards-wrapper" style={{ display: 'flex', flexWrap: 'wrap' }}> 
                             {assignedDeveloperProjects.map(project => (
                               <ProjectCard 
-                                key={project.id} 
-                                projectName={project.name} 
-                                state={project.state} 
-                                onShowSettings={handleShowProjectSettings} 
-                              />
+                              key={project.id} 
+                              projectName={project.name} 
+                              state={project.state} 
+                              onShowSettings={handleShowProjectSettings}
+                              onAssign={handleAssignProject} // Make sure to pass onAssign prop
+                              onDelete={handleDeleteProject} // Make sure to pass onDelete prop
+                          />
                             ))}
                         </div>
                         <h2>Request Projects</h2>
                         <div className="project-cards-wrapper" style={{ display: 'flex', flexWrap: 'wrap' }}> 
                             {requestProjects.map(project => (
                               <ProjectCard 
-                                key={project.id} 
-                                projectName={project.name} 
-                                state={project.state} 
-                                onShowSettings={handleShowProjectSettings} 
-                              />
+                              key={project.id} 
+                              projectName={project.name} 
+                              state={project.state} 
+                              onShowSettings={handleShowProjectSettings}
+                              onAssign={handleAssignProject} // Make sure to pass onAssign prop
+                              onDelete={handleDeleteProject} // Make sure to pass onDelete prop
+                          />
                             ))}
                         </div>
                       </div>
