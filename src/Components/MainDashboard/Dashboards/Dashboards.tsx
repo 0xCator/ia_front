@@ -57,16 +57,6 @@ const Dashboard: React.FC = () => {
     return (
         <div className="dashboard-container" style={{ backgroundColor: '#212529', color: '#000' }}>  
             <h1>Project Dashboard</h1>
-            <div className="add-project-container" style={{  }}>
-                <button className="add-project-button" onClick={() => setShowAddProjectForm(true)}>New</button>
-                {showAddProjectForm && (
-                    <div className="floating-form-overlay">
-                        <div className="floating-form">
-                            <ProjectCreationForm onCancel={() => setShowAddProjectForm(false)} />
-                        </div>
-                    </div>
-                )}
-            </div>
             <Container fluid>  
                 <Row>
                     <Col>
@@ -108,7 +98,16 @@ const Dashboard: React.FC = () => {
                     </Col>
                 </Row>
             </Container>
-            
+            <div className="add-project-container" style={{  }}>
+                <button className="add-project-button" onClick={() => setShowAddProjectForm(true)}>New</button>
+                {showAddProjectForm && (
+                    <div className="floating-form-overlay">
+                        <div className="floating-form">
+                            <ProjectCreationForm onCancel={() => setShowAddProjectForm(false)} />
+                        </div>
+                    </div>
+                )}
+            </div>
             {showProjectSettings && (
                 <div className="project-settings-overlay">
                     <ProjectSettings projectName={selectedProject} onClose={handleCloseProjectSettings} />
