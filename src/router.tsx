@@ -6,7 +6,8 @@ import Dashboards  from "./Components/MainDashboard/Dashboards/Dashboards";
 import ProjectCard from "./Components/MainDashboard/Dashboards/ProjectCard/ProjectCard";
 import ProjectCreationForm from "./Components/MainDashboard/Dashboards/ProjectCreationForm/ProjectCreationForm";
 import ProjectSettings from "./Components/MainDashboard/Dashboards/ProjectSettings/ProjectSettings";
-import { ProjectView } from "./Components/MainDashboard/ProjectView/ProjectView";
+import ProjectView  from "./Components/MainDashboard/ProjectView/ProjectView";
+
  
 
 const { createBrowserRouter } = require("react-router-dom");
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
                 element: <Dashboards />
             },
             {
-                path: "/project/:id", // localhost:3000/project/1
+                path: "/project", // localhost:3000/project/1
                 element: <ProjectView />
             }
         ]

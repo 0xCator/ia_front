@@ -125,7 +125,7 @@ const Dashboard: React.FC = () => {
                             ))}
                         </div>
                         <h2>Request Projects</h2>
-                        <div className="project-cards-wrapper" style={{ display: 'flex', flexWrap: 'wrap' }}> 
+                            <div className="project-cards-wrapper" style={{ display: 'flex', flexWrap: 'wrap' }}> 
                             {requestProjects.map(project => (
                               <ProjectCard 
                               key={project.id} 

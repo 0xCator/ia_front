@@ -79,8 +79,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ projectName, state, onShowSet
                     <Card.Body>
                         <Card.Title>{projectName}</Card.Title>
                         <div className="project-card-buttons">
-                            <Button className="accept" onClick={handleAcceptRequest}>Accept</Button>
                             <Button className="reject" onClick={handleRejectRequest}>Reject</Button>
+                            <Button className="accept" onClick={handleAcceptRequest}>Accept</Button>
                         </div>
                     </Card.Body>
                 </Card>

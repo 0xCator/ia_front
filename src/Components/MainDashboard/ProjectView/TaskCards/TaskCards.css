@@ -1,0 +1,59 @@
+/* TaskCards.css */
+
+.task-card {
+    background-color: #2d2d2d; /* Dark background color */
+    color: #ffffff; /* Light text color */
+    border: 1px solid #444444; /* Dark border */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Box shadow for elevation */
+    padding: 20px; /* Padding inside the card */
+    margin-bottom: 20px; /* Margin to separate cards */
+}
+
+.task-card .card-title {
+    color: #ffffff; /* Light text color for title */
+}
+
+.task-card .card-text {
+    color: #cccccc; /* Slightly lighter text color for description and user */
+}
+
+.task-card ul {
+    list-style-type: none; /* Remove default list styles */
+    padding: 0; /* Remove default padding */
+}
+
+.task-card ul li {
+    color: #cccccc; /* Slightly lighter text color for comments */
+}
+
+.add-comment-section {
+    margin-top: 20px; /* Add margin to separate comment section */
+}
+
+.add-comment-section label {
+    color: #ffffff; /* Light text color for label */
+}
+
+.add-comment-section input[type="text"] {
+    width: calc(100% - 120px); /* Adjust input width */
+    padding: 10px; /* Add padding to input */
+    margin-right: 10px; /* Add margin to separate input and button */
+    border: 1px solid #444444; /* Dark border for input */
+    border-radius: 4px; /* Rounded corners for input */
+    background-color: #333333; /* Dark background color for input */
+    color: #ffffff; /* Light text color for input */
+}
+
+.add-comment-section button {
+    background-color: #007bff; /* Primary button color */
+    color: #ffffff; /* Light text color for button */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners for button */
+    padding: 10px 20px; /* Add padding to button */
+    cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+.add-comment-section button:hover {
+    background-color: #0056b3; /* Darker color on hover */
+}
