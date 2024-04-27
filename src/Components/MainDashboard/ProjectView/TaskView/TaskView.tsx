@@ -3,151 +3,143 @@ import Button from 'react-bootstrap/Button';
 import './TaskView.css';
 
 interface TaskViewProps {
+  taskId: number;
   onClose: () => void;
 }
 
-interface TaskData {
-  name: string;
+interface Task {
+  taskid: number;
+  title: string;
   description: string;
-  user: string;
+  state: 'todo' | 'doing' | 'done';
   comments: string[];
 }
 
-const TaskView: React.FC<TaskViewProps> = ({ onClose }) => {
-  const [taskData, setTaskData] = useState<TaskData>({
-    name: 'Fake Task',
+const TaskView: React.FC<TaskViewProps> = ({ taskId, onClose }) => {
+  const [task, setTask] = useState<Task | null>({
+    taskid: taskId,
+    title: 'Fake Task',
     description: 'Task description',
-    user: 'Ahmad Nader',
+    state: 'done',
     comments: ['Comment 1', 'Comment 2', 'Comment 3']
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedTask, setEditedTask] = useState<TaskData | null>(null);
-  const [newComment, setNewComment] = useState('');
+  }
+  
+  );
+  const [editedTask, setEditedTask] = useState<Task | null>(null);
+  const [newComment, setNewComment] = useState<string>('');
 
   useEffect(() => {
-    // No need to fetch data, use fake data directly
-  }, []);
+    const fetchTask = async () => {
+      try {
+        const response = await fetch(`api/tasks/${taskId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch task');
+        }
+        const data = await response.json();
+        setTask(data);
+        setEditedTask(data); // Initialize editedTask with fetched data
+      } catch (error) {
+        console.error('Error fetching task:', error);
+      }
+    };
 
-  useEffect(() => {
-    if (isEditing) {
-      // Focus on the input field when editing starts
-      const inputElement = document.getElementById('editedNameInput') as HTMLInputElement;
-      if (inputElement) inputElement.focus();
-    }
-  }, [isEditing]);
+    fetchTask();
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setEditedTask(taskData); // Save current task data for editing
-  };
+    // Cleanup function
+    return () => {
+      // Cleanup code if needed
+    };
+  }, [taskId]);
 
-  const handleSave = () => {
-    // Update task data with edited values
-    if (editedTask) {
-      setTaskData(editedTask);
-      setIsEditing(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof TaskData) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof Task) => {
     if (editedTask) {
       setEditedTask({ ...editedTask, [field]: e.target.value });
     }
   };
 
-  const handleAddComment = async () => {
+  const handleSave = async () => {
     try {
-      if (newComment.trim() !== '') {
-        // Simulating adding a comment by updating taskData
-        setTaskData(prevState => ({
-          ...prevState!,
-          comments: [...prevState!.comments, newComment]
-        }));
-        setNewComment('');
+      if (editedTask) {
+        const response = await fetch(`your-api-endpoint/tasks/${editedTask.taskid}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(editedTask),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to save task');
+        }
+        console.log('Task saved successfully');
+        onClose();
       }
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error('Error saving task:', error);
     }
   };
 
-  // Uncomment the following code for API request
-  /*
-  useEffect(() => {
-    const fetchTaskData = async () => {
-      try {
-        const response = await fetch('API_ENDPOINT');
-        if (!response.ok) {
-          throw new Error('Failed to fetch task data');
+  const handleAddComment = () => {
+    if (newComment.trim() !== '' && editedTask) {
+      setEditedTask(prevState => {
+        if (prevState) {
+          return {
+            ...prevState,
+            comments: [...prevState.comments, newComment],
+          };
         }
-        const data = await response.json();
-        setTaskData(data);
-      } catch (error) {
-        console.error('Error fetching task data:', error);
-      }
-    };
-    fetchTaskData();
-  }, []);
-  */
+        return prevState;
+      });
+      setNewComment('');
+    }
+  };
 
   return (
     <div className="task-card-floating-page">
-      <div>
-        {isEditing ? (
-          <>
-            <input
-              type="text"
-              value={editedTask?.name}
-              onChange={(e) => handleChange(e, 'name')}
-              id="editedNameInput"
-            />
-            <input
-              type="text"
-              value={editedTask?.description}
-              onChange={(e) => handleChange(e, 'description')}
-            />
-            <input
-              type="text"
-              value={editedTask?.user}
-              onChange={(e) => handleChange(e, 'user')}
-            />
-          </>
-        ) : (
-          <>
-            <h2>{taskData.name}</h2>
-            <p>{taskData.description}</p>
-            <p>User: {taskData.user}</p>
-          </>
-        )}
-        <p>Comments:</p>
-        <ul>
-          {taskData.comments.map((comment, index) => (
-            <li key={index}>{comment}</li>
-          ))}
-        </ul>
-        {!isEditing && (
-          <div className="add-comment-section">
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Add a comment"
-            />
-            <Button onClick={handleAddComment}>Add Comment</Button>
+
+      <h1>Task ID == {task?.taskid}</h1>
+      {task ? (
+        <>
+          <div>
+            <label>Title:</label>
+            {editedTask ? (
+              <input type="text" value={editedTask.title} onChange={(e) => handleChange(e, 'title')} />
+            ) : (
+              <h2>{task.title}</h2>
+            )}
+            <label>Description:</label>
+            {editedTask ? (
+              <textarea value={editedTask.description} onChange={(e) => handleChange(e, 'description')} />
+            ) : (
+              <p>{task.description}</p>
+            )}
+            <label>Status:</label>
+            <p>{task.state}</p>
+
+            <h3>Comments:</h3>
+            <ul>
+              {editedTask?.comments.map((comment, index) => (
+                <li key={index}>{comment}</li>
+              ))}
+            </ul>
+
+            <div className="add-comment-section">
+              <input type="text" value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Add a comment" />
+              <Button onClick={handleAddComment}>Add Comment</Button>
+            </div>
+
+            {editedTask ? (
+              <>
+                <Button onClick={handleSave}>Save</Button>
+                <Button onClick={() => setEditedTask(null)}>Cancel</Button>
+              </>
+            ) : (
+              <Button onClick={() => setEditedTask(task)}>Edit</Button>
+            )}
           </div>
-        )}
-        {isEditing ? (
-          <>
-            <Button onClick={handleSave}>Save</Button>
-            <Button onClick={handleCancel}>Cancel</Button>
-          </>
-        ) : (
-          <Button onClick={handleEdit}>Edit</Button>
-        )}
-      </div>
+        </>
+      ) : (
+        <p>Loading...</p>
+      )}
       <Button onClick={onClose}>Close</Button>
     </div>
   );
