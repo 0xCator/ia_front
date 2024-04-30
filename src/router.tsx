@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
                 element: <Dashboards />
             },
             {
-                path: "/project/:id", // localhost:3000/project/1
+                path: "/project/:projectId", // localhost:3000/project/1
                 element: <ProjectView />
             }
         ]

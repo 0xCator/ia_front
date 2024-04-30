@@ -1,12 +1,16 @@
-/* LoginForm.css */
+.login-form-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: burlywood;
+}
 
 .login-form {
-    max-width: 400px;
-    margin: 0 auto;
+    background-color: rgba(66, 176, 150, 0.1);
     padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    border-radius: 8px;
+    width: 300px;
 }
 
 .login-form__header {
@@ -15,48 +19,50 @@
 }
 
 .login-form__header h1 {
-    color: #333;
+    margin: 0;
+    font-size: 24px;
 }
 
-.login-form__body {
-    padding: 20px;
+.login-form__body form {
+    display: flex;
+    flex-direction: column;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    color: #555;
+.form-group label {
+    font-weight: bold;
 }
 
-input[type="text"],
-input[type="password"] {
+.form-group input {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
+    border-radius: 4px;
 }
 
-button {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
+.buttons-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.buttons-container button {
     background-color: #007bff;
     color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
     cursor: pointer;
 }
 
-button:hover {
+.buttons-container button:hover {
     background-color: #0056b3;
 }
 
 .error-message {
+    color: #ff0000;
     margin-top: 10px;
-    color: red;
-    font-size: 14px;
 }

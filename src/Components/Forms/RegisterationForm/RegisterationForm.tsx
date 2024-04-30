@@ -7,9 +7,6 @@ const RegistrationForm: React.FC = () => {
     const email = useRef<HTMLInputElement>(null);
     const firstName = useRef<HTMLInputElement>(null);
     const lastName = useRef<HTMLInputElement>(null);
-    const ssid = useRef<HTMLInputElement>(null);
-    const phoneNumber = useRef<HTMLInputElement>(null);
-    const address = useRef<HTMLInputElement>(null);
     const password = useRef<HTMLInputElement>(null);
 
     const signup = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -19,9 +16,6 @@ const RegistrationForm: React.FC = () => {
             Email: email.current?.value,
             FirstName: firstName.current?.value,
             LastName: lastName.current?.value,
-            SSID: ssid.current?.value,
-            PhoneNumber: phoneNumber.current?.value,
-            Address: address.current?.value,
             Password: password.current?.value
         };
         console.log(data);
@@ -69,18 +63,6 @@ const RegistrationForm: React.FC = () => {
                     <div className='form-group'>
                         <label htmlFor='LastName'>Last Name</label>
                         <input type='text' id='LastName' name='LastName' ref={lastName} />
-                    </div>
-                    <div className='form-group'>
-                        <label htmlFor='SSID'>SSID</label>
-                        <input type='text' id='SSID' name='SSID' ref={ssid} />
-                    </div>
-                    <div className='form-group'>
-                        <label htmlFor='PhoneNumber'>Phone Number</label>
-                        <input type='text' id='PhoneNumber' name='PhoneNumber' ref={phoneNumber} />
-                    </div>
-                    <div className='form-group'>
-                        <label htmlFor='Address'>Address</label>
-                        <input type='text' id='Address' name='Address' ref={address} />
                     </div>
                     <div className='form-group'>
                         <label htmlFor='Password'>Password</label>

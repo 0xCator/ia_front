@@ -1,6 +1,4 @@
-// ProjectCreationForm.tsx
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface ProjectCreationFormProps {
     onCancel: () => void; // Function to cancel adding a new project
@@ -8,16 +6,18 @@ interface ProjectCreationFormProps {
 
 const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCancel }) => {
     const [newProjectName, setNewProjectName] = useState<string>(''); // State to manage the new project name
+    const projectNameRef = useRef<HTMLInputElement>(null); // Ref for input element
 
     const handleAddProject = () => {
-        if (newProjectName.trim() !== '') {
+        const projectName = projectNameRef.current?.value;
+        if (projectName && projectName.trim() !== '') {
             // Call the API endpoint to add the new project
             fetch('/api/projects', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ name: newProjectName })
+                body: JSON.stringify({ name: projectName })
             })
             .then(response => {
                 if (!response.ok) {
@@ -40,6 +40,7 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCancel }) =
                 value={newProjectName}
                 onChange={(e) => setNewProjectName(e.target.value)}
                 placeholder="Enter project name"
+                ref={projectNameRef} // Assigning ref to input element
             />
             <div className="buttons-container">
                 {/* Call handleAddProject when Add button is clicked */}
