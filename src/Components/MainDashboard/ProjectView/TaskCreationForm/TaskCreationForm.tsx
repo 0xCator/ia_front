@@ -7,12 +7,14 @@ interface TaskCreationFormProps {
 
 const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel }) => {
     const taskNameRef = useRef<HTMLInputElement>(null); // Ref for task name input element
+    const titleRef = useRef<HTMLInputElement>(null); // Ref for task name input element
     const developerNameRef = useRef<HTMLInputElement>(null); // Ref for developer name input element
     const descriptionRef = useRef<HTMLTextAreaElement>(null); // Ref for description textarea element
 
     const handleCreationForm = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const taskName = taskNameRef.current?.value;
+        const title = titleRef.current?.value;
         const developerName = developerNameRef.current?.value;
         const description = descriptionRef.current?.value;
         if (taskName && taskName.trim() !== '' && developerName && developerName.trim() !== '' && description && description.trim() !== '') {
@@ -26,6 +28,7 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel }) => {
                 },
                 body: JSON.stringify({ 
                     name: taskName,
+                    title: title,
                     developer: developerName,
                     description: description
                 })
@@ -57,6 +60,15 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel }) => {
                         id="taskName"
                         placeholder="Enter task name"
                         ref={taskNameRef} // Assigning ref to task name 
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="title">Title</label>
+                    <input
+                        type="text"
+                        id="Title"
+                        placeholder="Enter Title"
+                        ref={titleRef} // Assigning ref to title
                     />
                 </div>
                 <div className="form-group">

@@ -10,6 +10,7 @@ interface TaskViewProps {
 interface Task {
   taskid: number;
   title: string;
+  developerName: string;
   description: string;
   state: 'todo' | 'doing' | 'done';
   comments: string[];
@@ -19,6 +20,7 @@ const TaskView: React.FC<TaskViewProps> = ({ taskId, onClose }) => {
   const [task, setTask] = useState<Task | null>({
     taskid: taskId,
     title: 'Fake Task',
+    developerName: 'Ahmad Naders',
     description: 'Task description',
     state: 'done',
     comments: ['Comment 1', 'Comment 2', 'Comment 3']
@@ -26,7 +28,7 @@ const TaskView: React.FC<TaskViewProps> = ({ taskId, onClose }) => {
   
   );
   const [editedTask, setEditedTask] = useState<Task | null>(null);
-  const [newComment, setNewComment] = useState<string>('');
+  const [newComment, setNewComment] = useState<string>('ahmad comment');
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -105,6 +107,12 @@ const TaskView: React.FC<TaskViewProps> = ({ taskId, onClose }) => {
               <input type="text" value={editedTask.title} onChange={(e) => handleChange(e, 'title')} />
             ) : (
               <h2>{task.title}</h2>
+            )}
+            <label>Developer Name:</label>
+            {editedTask ? (
+              <input type="text" value={editedTask.developerName} onChange={(e) => handleChange(e, 'developerName')} />
+            ) : (
+              <h3>{task.developerName}</h3>
             )}
             <label>Description:</label>
             {editedTask ? (

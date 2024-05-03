@@ -7,6 +7,7 @@ import './TaskCards.css';
 interface Task {
   taskid: number;
   title: string;
+  developerName: string;
   description: string;
   state: 'todo' | 'doing' | 'done';
 }
@@ -40,6 +41,7 @@ const TaskCards: React.FC<TaskCardProps> = ({ task, onClick }) => {
     <Card bg={cardColor} text="white" style={{ width: '18rem', cursor: 'pointer' }} onClick={handleClick}>
       <Card.Body>
         <Card.Title>{task.title}</Card.Title>
+        <Card.Text>{task.developerName}</Card.Text>
         <Card.Text>{task.description}</Card.Text>
         <Card.Text>Status: {task.state}</Card.Text>
       </Card.Body>
