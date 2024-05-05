@@ -27,8 +27,7 @@ const TaskView: React.FC<TaskViewProps> = ({ taskId, onClose }) => {
   }
   
   );
-  const [editedTask, setEditedTask] = useState<Task | null>(null);
-  const [newComment, setNewComment] = useState<string>('ahmad comment');
+  const [newComment, setNewComment] = useState<string>('');
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -39,7 +38,6 @@ const TaskView: React.FC<TaskViewProps> = ({ taskId, onClose }) => {
         }
         const data = await response.json();
         setTask(data);
-        setEditedTask(data); // Initialize editedTask with fetched data
       } catch (error) {
         console.error('Error fetching task:', error);
       }
@@ -54,44 +52,23 @@ const TaskView: React.FC<TaskViewProps> = ({ taskId, onClose }) => {
   }, [taskId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: keyof Task) => {
-    if (editedTask) {
-      setEditedTask({ ...editedTask, [field]: e.target.value });
-    }
   };
 
   const handleSave = async () => {
-    try {
-      if (editedTask) {
-        const response = await fetch(`your-api-endpoint/tasks/${editedTask.taskid}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(editedTask),
-        });
-        if (!response.ok) {
-          throw new Error('Failed to save task');
-        }
-        console.log('Task saved successfully');
-        onClose();
-      }
-    } catch (error) {
-      console.error('Error saving task:', error);
-    }
   };
 
   const handleAddComment = () => {
-    if (newComment.trim() !== '' && editedTask) {
-      setEditedTask(prevState => {
-        if (prevState) {
-          return {
-            ...prevState,
-            comments: [...prevState.comments, newComment],
-          };
+    if (task) {
+        const newCommenta = newComment.trim();
+        if (!newCommenta) {
+            return;
         }
-        return prevState;
-      });
-      setNewComment('');
+        setTask({
+            ...task,
+            comments: [...task.comments, newCommenta]
+        });
+        setNewComment('');
+
     }
   };
 
@@ -103,31 +80,18 @@ const TaskView: React.FC<TaskViewProps> = ({ taskId, onClose }) => {
         <>
           <div>
             <label>Title:</label>
-            {editedTask ? (
-              <input type="text" value={editedTask.title} onChange={(e) => handleChange(e, 'title')} />
-            ) : (
               <h2>{task.title}</h2>
-            )}
-            <label>Developer Name:</label>
-            {editedTask ? (
-              <input type="text" value={editedTask.developerName} onChange={(e) => handleChange(e, 'developerName')} />
-            ) : (
               <h3>{task.developerName}</h3>
-            )}
             <label>Description:</label>
-            {editedTask ? (
-              <textarea value={editedTask.description} onChange={(e) => handleChange(e, 'description')} />
-            ) : (
               <p>{task.description}</p>
-            )}
             <label>Status:</label>
             <p>{task.state}</p>
 
             <h3>Comments:</h3>
             <ul>
-              {editedTask?.comments.map((comment, index) => (
-                <li key={index}>{comment}</li>
-              ))}
+                {task.comments.map((comment, index) => (
+                    <li key={index}>{comment}</li>
+                ))}
             </ul>
 
             <div className="add-comment-section">
@@ -135,14 +99,6 @@ const TaskView: React.FC<TaskViewProps> = ({ taskId, onClose }) => {
               <Button onClick={handleAddComment}>Add Comment</Button>
             </div>
 
-            {editedTask ? (
-              <>
-                <Button onClick={handleSave}>Save</Button>
-                <Button onClick={() => setEditedTask(null)}>Cancel</Button>
-              </>
-            ) : (
-              <Button onClick={() => setEditedTask(task)}>Edit</Button>
-            )}
           </div>
         </>
       ) : (

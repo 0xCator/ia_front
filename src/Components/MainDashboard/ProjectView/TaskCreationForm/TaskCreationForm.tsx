@@ -1,15 +1,19 @@
 import React, { useRef } from 'react';
 import './TaskCreationForm.css'; // Import CSS file
+import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+
 
 interface TaskCreationFormProps {
     onCancel: () => void; // Function to cancel adding a new task
 }
 
+const developers = ["Ahmad Abo-Tahoun", "Ahmad Nader", "Mazin Sayed", "Hazem Mahmoud"];
 const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel }) => {
     const taskNameRef = useRef<HTMLInputElement>(null); // Ref for task name input element
     const titleRef = useRef<HTMLInputElement>(null); // Ref for task name input element
     const developerNameRef = useRef<HTMLInputElement>(null); // Ref for developer name input element
     const descriptionRef = useRef<HTMLTextAreaElement>(null); // Ref for description textarea element
+    const [developer, setDeveloper] = React.useState<string>(''); // State for developer name
 
     const handleCreationForm = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -17,37 +21,7 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel }) => {
         const title = titleRef.current?.value;
         const developerName = developerNameRef.current?.value;
         const description = descriptionRef.current?.value;
-        if (taskName && taskName.trim() !== '' && developerName && developerName.trim() !== '' && description && description.trim() !== '') {
-            //close the form -> to be removed just checking
-            onCancel();
-            // Call the API endpoint to add the new task
-            fetch('/api/tasks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    name: taskName,
-                    title: title,
-                    developer: developerName,
-                    description: description
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to add task');
-                }
-                // Resetting input field value using ref
-                taskNameRef.current!.value = ''; 
-                developerNameRef.current!.value = '';
-                descriptionRef.current!.value = '';
-                //close the form
-                onCancel();
-            })
-            .catch(error => {
-                console.error('Error adding task:', error);
-            });
-        }
+
     };
 
     return (
@@ -72,13 +46,20 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel }) => {
                     />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="developerName">Developer Name</label>
-                    <input
-                        type="text"
-                        id="developerName"
-                        placeholder="Enter developer name"
-                        ref={developerNameRef} // Assigning ref to developer name  
-                    />
+                 <FormControl fullWidth>
+                        <InputLabel id="developer-label">Developer</InputLabel>
+                        <Select
+                            labelId="developer-label"
+                            id="developer"
+                            value={developer}
+                            onChange={(e) => setDeveloper(e.target.value as string)}
+                            label="Developer"
+                        >
+                        {developers.map((dev, index) => (
+                                <MenuItem key={index} value={dev}>{dev}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 </div>
                 <div className="form-group">
                     <label htmlFor="description">Description</label>
