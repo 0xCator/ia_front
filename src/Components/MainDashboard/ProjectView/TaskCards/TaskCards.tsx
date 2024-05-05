@@ -3,14 +3,8 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import './TaskCards.css';
+import {Task}from '../ProjectView';
 
-interface Task {
-  taskid: number;
-  title: string;
-  developerName: string;
-  description: string;
-  state: 'todo' | 'doing' | 'done';
-}
 
 interface TaskCardProps {
   task: Task;
@@ -20,7 +14,7 @@ interface TaskCardProps {
 const TaskCards: React.FC<TaskCardProps> = ({ task, onClick }) => {
   let cardColor: string;
   switch (task.state) {
-    case 'todo':
+    case 'to-do':
       cardColor = 'warning';
       break;
     case 'doing':
