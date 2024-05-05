@@ -41,17 +41,17 @@ const ProjectView = () => {
     setSelectedTaskId(taskId);
   };
 
-  const filteredTasks = tasks.filter(task => {
-    const searchLowerCase = searchQuery.toLowerCase();
-    if (!isNaN(Number(searchLowerCase[0]))) {
-      // If the first character is a number, consider it as a task ID
-      return task.taskid.toString().includes(searchLowerCase);
-    } else {
-      // Else developer name
-      return task.developerName.toLowerCase().includes(searchLowerCase);
+  const filteredTasks = (tasks: Task[]) => {
+    const searchLowerCase = searchQuery.toLowerCase(); 
+    if(searchLowerCase === ''){
+        return tasks;
     }
-  });
-
+    if(!isNaN(Number(searchLowerCase[0]))){
+        return tasks.filter( task => task.taskid.toString().includes(searchLowerCase));
+    } else {
+        return tasks.filter( task => task.developerName.toLowerCase().includes(searchLowerCase));
+    }
+  };
 
 
   // Handle drag end
@@ -140,13 +140,13 @@ const ProjectView = () => {
         <DragDropContext onDragEnd={onDragEnd}>
           <Row>
             <Col>
-              <Column title="To Do" onClick={handleTaskClick} tasks={todoTasks} />
+              <Column title="To Do" onClick={handleTaskClick} tasks={filteredTasks(todoTasks)} />
             </Col>
             <Col>
-              <Column title="Doing" onClick={handleTaskClick} tasks={doingTasks} />
+              <Column title="Doing" onClick={handleTaskClick} tasks={filteredTasks(doingTasks)} />
             </Col>
             <Col>
-              <Column title="Done" onClick={handleTaskClick} tasks={doneTasks} />
+              <Column title="Done" onClick={handleTaskClick} tasks={filteredTasks(doneTasks)} />
             </Col>
           </Row>
         </DragDropContext>
