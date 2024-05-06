@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
-import './TaskView.css';
 
 interface TaskViewProps {
   taskId: number;

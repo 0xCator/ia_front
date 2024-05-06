@@ -3,7 +3,6 @@ import { Container, Row, Col } from 'react-bootstrap';
 import TaskCards from './TaskCards/TaskCards';
 import TaskView from './TaskView/TaskView';
 import { useParams } from 'react-router-dom'; // Import useParams
-import './ProjectView.css';
 import TaskCreationForm from './TaskCreationForm/TaskCreationForm';
 
 interface Task {

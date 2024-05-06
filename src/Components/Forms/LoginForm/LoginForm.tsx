@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import '../LoginForm/LoginForm.css'; // Import CSS file
 
 const LoginForm: React.FC = () => {
     const [loginError, setLoginError] = useState<string | null>(null);
