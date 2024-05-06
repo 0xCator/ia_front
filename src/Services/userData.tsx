@@ -1,7 +1,8 @@
 import { jwtDecode } from "jwt-decode";
 
 interface User {
-    sub: string
+    unique_name: string,
+    nameid: number,
 }
 
 export const getUserData = () => {
