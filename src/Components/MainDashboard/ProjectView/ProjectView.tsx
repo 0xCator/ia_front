@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { DragDropContext} from 'react-beautiful-dnd'; 
 import TaskView from './TaskView/TaskView';
-import { useParams } from 'react-router-dom';
-import './ProjectView.css';
+import { useParams } from 'react-router-dom'; // Import useParams
 import TaskCreationForm from './TaskCreationForm/TaskCreationForm';
 import Column from './ProjectColumn/PrjectColumn';
 

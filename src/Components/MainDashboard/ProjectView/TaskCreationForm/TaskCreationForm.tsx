@@ -1,7 +1,5 @@
 import React, { useRef } from 'react';
-import './TaskCreationForm.css'; // Import CSS file
 import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-
 
 interface TaskCreationFormProps {
     onCancel: () => void; // Function to cancel adding a new task
