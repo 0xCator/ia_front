@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { FormControl, InputLabel, MenuItem, Select, TextField, Button, Box } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, TextField, Button, Box, SelectChangeEvent } from '@mui/material';
 import { Task } from '../ProjectView';
 import { Developer } from '../ProjectView';
 import { addTaskApi } from '../../../../Services/constants';
@@ -15,6 +15,7 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel, developer
     const titleRef = useRef<HTMLInputElement>(null); 
     const developerNameRef = useRef<string>(''); 
     const descriptionRef = useRef<HTMLTextAreaElement>(null); 
+    const [currentDev, setCurrentDev] = React.useState<string>('');
 
     const createTask = () => { 
             fetch(addTaskApi, {
@@ -39,6 +40,11 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel, developer
 
         }
 
+    const updateDev = (e: SelectChangeEvent) => {
+        setCurrentDev(e.target.value as string);
+        developerNameRef.current = e.target.value as string;
+    }
+
     return (
         <Box sx={{ width: 400, bgcolor: 'background.paper', p: 2 }}>
             <form >
@@ -55,8 +61,8 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel, developer
                     <Select
                         labelId="developer-label"
                         id="developer"
-                        value={developerNameRef.current}
-                        onChange={(e) => developerNameRef.current = e.target.value as string}
+                        value={currentDev}
+                        onChange={updateDev}
                         label="Developer"
                     >
                         {developers?.map((developer) => (

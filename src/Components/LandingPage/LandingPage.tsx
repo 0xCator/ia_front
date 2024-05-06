@@ -8,10 +8,20 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import {useNavigate} from 'react-router-dom'; // Assuming you're using React Router for navigation
+import { getUserData } from '../../Services/userData';
 
 const LandingPage = () => {
 
 const navigate = useNavigate();
+
+const handleGetStarted = () => {
+    if (getUserData() !== null) {
+        console.log('User is already logged in');
+        navigate('/dashboard');
+    } else {
+        navigate('/register');
+    }
+}
 
 return (
     <Grid container component="main" sx={{ height: '100vh' }}>
@@ -55,7 +65,7 @@ return (
                 </Box>
                 <Box component="form" sx={{alignItems: "center", textAlign:"center", justifyContent:"center"}}>
                     <Grid direction="row" sx={{ mt: 6 }}>
-                        <Button disableElevation variant="contained" size="large" onClick={() => navigate('/register')}>
+                        <Button disableElevation variant="contained" size="large" onClick={handleGetStarted}>
                             Get Started!
                         </Button>
                     </Grid>
