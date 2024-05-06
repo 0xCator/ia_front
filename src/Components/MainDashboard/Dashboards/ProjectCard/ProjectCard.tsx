@@ -15,44 +15,23 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface ProjectCardProps {
+    projectID: number;
     projectName: string;
     state: number; // Add state property
-    onShowSettings: (projectName: string) => void;
-    onAssign: (projectName: string) => void; // Callback function for assigning project
-    onDelete: (projectName: string) => void; // Callback function for deleting project
+    onShowSettings: (projectID: number) => void;
+    onAssign: (projectID: number, projectName: string) => void; // Callback function for assigning project
+    onDelete: (projectID: number, projectName: string) => void; // Callback function for deleting project
 }
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ projectName, state, onShowSettings, onAssign, onDelete }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ projectID,projectName, state, onShowSettings, onAssign, onDelete }) => {
     const navigate = useNavigate();
     
     const handleAcceptRequest = async () => {
-        try {
-            // Make POST request to backend API to accept request
-            await fetch(`/api/projects/${projectName}/assign`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ projectName })
-            });
-            // Update projects after assignment
-            onAssign(projectName);
-        } catch (error) {
-            console.error('Error accepting request:', error);
-        }
+        onAssign(projectID, projectName);
     };
 
     const handleRejectRequest = async () => {
-        try {
-            // Make DELETE request to backend API to reject request
-            await fetch(`/api/projects/${projectName}`, {
-                method: 'DELETE'
-            });
-            // Update projects after rejection
-            onDelete(projectName);
-        } catch (error) {
-            console.error('Error rejecting request:', error);
-        }
+        onDelete(projectID, projectName);
     };
 
     let cardContent = null;
@@ -61,7 +40,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ projectName, state, onShowSet
         case 0:
             cardContent = (
                     <Card variant='outlined' sx={{ borderColor: 'blue', minWidth: 215, maxWidth: 215, minHeight: 113, maxHeight: 113 }}>
-                        <CardActionArea onClick={() => navigate(`/project/1`)}>
+                        <CardActionArea onClick={() => navigate(`/project/${projectID}`)}>
                             <CardContent>
                                 <Typography variant="h5" component="div">
                                     {projectName}
@@ -69,7 +48,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ projectName, state, onShowSet
                             </CardContent>
                         </CardActionArea>
                         <CardActions sx={{justifyContent: "right"}}>
-                            <IconButton size="small" color="primary" onClick={() => onShowSettings(projectName)}><ManageAccountsIcon/></IconButton>
+                            <IconButton size="small" color="primary" onClick={() => onShowSettings(projectID)}><ManageAccountsIcon/></IconButton>
                         </CardActions>
                     </Card>
             );
@@ -77,7 +56,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ projectName, state, onShowSet
         case 1:
             cardContent = (
                 <Card variant='outlined' sx={{ borderColor: 'green', minWidth: 215, maxWidth: 215, minHeight: 113, maxHeight: 113 }}>
-                    <CardActionArea onClick={() => navigate(`/project/1`)}>
+                    <CardActionArea onClick={() => navigate(`/project/${projectID}`)}>
                         <CardContent>
                             <Typography variant="h5" component="div">
                                 {projectName}
