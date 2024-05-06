@@ -1,45 +1,54 @@
-// TaskCards.tsx
-
 import React from 'react';
-import { Card } from 'react-bootstrap';
-import {Task}from '../ProjectView';
-
+import { Card, CardContent, Typography } from '@mui/material';
+import { Task } from '../ProjectView';
 
 interface TaskCardProps {
   task: Task;
-  onClick: (taskId: number) => void; // Add onClick prop to handle click events
+  onClick: (taskId: number) => void;
 }
 
 const TaskCards: React.FC<TaskCardProps> = ({ task, onClick }) => {
-  let cardColor: string;
+  let cardBorderColor: string;
   switch (task.state) {
     case 'to-do':
-      cardColor = 'warning';
+      cardBorderColor = '#FFC107'; // Yellow for to-do
       break;
     case 'doing':
-      cardColor = 'info';
+      cardBorderColor = '#2196F3'; // Blue for doing
       break;
     case 'done':
-      cardColor = 'success';
+      cardBorderColor = '#4CAF50'; // Green for done
       break;
     default:
-      cardColor = 'light';
+      cardBorderColor = '#000'; // Default black
   }
 
   const handleClick = () => {
-    onClick(task.taskid); // Pass taskId to the onClick handler
+    onClick(task.taskid);
   };
 
   return (
-    <Card bg={cardColor} text="white" style={{ width: '18rem', cursor: 'pointer' }} onClick={handleClick}>
-      <Card.Body>
-        <Card.Title>{task.title}</Card.Title>
-        <Card.Text>{task.developerName}</Card.Text>
-        <Card.Text>{task.description}</Card.Text>
-        <Card.Text>Status: {task.state}</Card.Text>
-      </Card.Body>
+    <Card
+      style={{ border: `2px solid ${cardBorderColor}`, borderRadius: '8px', cursor: 'pointer' }}
+      onClick={handleClick}
+    >
+      <CardContent style={{ backgroundColor: '#fff' }}>
+        <Typography variant="h5" component="div">
+          {task.title}
+        </Typography>
+        <Typography color="text.secondary" gutterBottom>
+          {task.developerName}
+        </Typography>
+        <Typography variant="body2" component="p">
+          {task.description}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Status: {task.state}
+        </Typography>
+      </CardContent>
     </Card>
   );
 };
 
 export default TaskCards;
+
