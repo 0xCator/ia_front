@@ -39,13 +39,10 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask }) => {
 
   return (
     <Dialog open onClose={onClose} PaperProps={{ style: { border: `2px solid ${getBorderColor()}`, minWidth: '600px', minHeight: '400px' } }}>
-      <DialogTitle style={{ backgroundColor: '#f0f0f0', borderBottom: `2px solid ${getBorderColor()}` }}>
-        Task ID: {task.taskid}
+      <DialogTitle style={{ backgroundColor: `${getBorderColor()}`, borderBottom: `2px solid ${getBorderColor()}` }}>
+       #{task.taskid} {task.title}
       </DialogTitle>
       <DialogContent dividers>
-        <div style={{ marginBottom: '16px' }}>
-          <strong>Title:</strong> {task.title}
-        </div>
         <div style={{ marginBottom: '16px' }}>
           <strong>Developer:</strong> {task.developerName}
         </div>
@@ -53,10 +50,6 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask }) => {
           <strong>Description:</strong>
           <div style={{ marginTop: '8px', border: '1px solid #ccc', padding: '8px', borderRadius: '4px' }}>{task.description}</div>
         </div>
-        <div style={{ marginBottom: '16px' }}>
-          <strong>Status:</strong> {task.state}
-        </div>
-
         <div style={{ marginBottom: '16px' }}>
           <strong>Comments:</strong>
           <ul style={{ paddingLeft: '20px', marginTop: '8px', listStyleType: 'none' }}>

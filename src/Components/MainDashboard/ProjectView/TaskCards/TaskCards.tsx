@@ -39,12 +39,6 @@ const TaskCards: React.FC<TaskCardProps> = ({ task, onClick }) => {
         <Typography color="text.secondary" gutterBottom>
           {task.developerName}
         </Typography>
-        <Typography variant="body2" component="p">
-          {task.description}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Status: {task.state}
-        </Typography>
       </CardContent>
     </Card>
   );
