@@ -6,6 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import { Task } from '../ProjectView';
+import { Typography } from '@mui/material';
 
 interface TaskViewProps {
   task: Task;
@@ -22,7 +23,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask }) => {
       onUpdateTask(updatedTask);
       setNewComment('');
     }
-  };
+  }
 
   const getBorderColor = () => {
     switch (task.state) {
@@ -43,21 +44,21 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask }) => {
        #{task.taskid} {task.title}
       </DialogTitle>
       <DialogContent dividers>
-        <div style={{ marginBottom: '16px' }}>
+        <Typography style={{ marginBottom: '16px' }}>
           <strong>Developer:</strong> {task.developerName}
-        </div>
-        <div style={{ marginBottom: '16px' }}>
+        </Typography>
+        <Typography style={{ marginBottom: '16px' }}>
           <strong>Description:</strong>
           <div style={{ marginTop: '8px', border: '1px solid #ccc', padding: '8px', borderRadius: '4px' }}>{task.description}</div>
-        </div>
-        <div style={{ marginBottom: '16px' }}>
+        </Typography >
+        <Typography style={{ marginBottom: '16px' }}>
           <strong>Comments:</strong>
           <ul style={{ paddingLeft: '20px', marginTop: '8px', listStyleType: 'none' }}>
             {task.comments.map((comment, index) => (
               <li key={index} style={{ marginBottom: '8px', borderLeft: `4px solid ${getBorderColor()}`, paddingLeft: '8px' }}>{comment}</li>
             ))}
           </ul>
-        </div>
+        </Typography>
 
         <TextField
           label="Add a comment"

@@ -7,16 +7,20 @@ import { Box, Paper, Typography } from '@mui/material'; // Import Material-UI co
 interface ColumnProps {
   title: string;
   tasks: Task[];
+  icon: JSX.Element;
   onClick: (taskId: number) => void;
 }
 
-const Column: React.FC<ColumnProps> = ({ title, tasks, onClick }) => {
+const Column: React.FC<ColumnProps> = ({ title, tasks, onClick, icon }) => {
   return (
     <Box p={2} width={300}>
       <Paper elevation={3}>
-        <Typography variant="h6" align="center" gutterBottom>
-          {title}
-        </Typography>
+        <Box display="flex" alignItems="center" justifyContent="center" flexDirection="column" p={2}>
+          {icon}
+          <Typography variant="h6" align="center" gutterBottom>
+            {title}
+          </Typography>
+        </Box>
         <Droppable droppableId={title.toLowerCase().replace(/\s+/g, '-')}>
           {(provided, snapshot) => (
             <Box ref={provided.innerRef} {...provided.droppableProps} p={2}>

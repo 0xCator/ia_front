@@ -1,9 +1,10 @@
 import { jwtDecode } from "jwt-decode";
 
-interface User {
-    uniqueId: string;
-    nameid: string;
+export interface User {
+    unique_name: string,
+    nameid: number,
 }
+
 
 export const getUserData = () => {
     if (localStorage.getItem('userData')) {
