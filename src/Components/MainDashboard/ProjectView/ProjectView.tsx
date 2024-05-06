@@ -13,11 +13,12 @@ export interface Task {
   developerName: string;
   description: string;
   state: 'to-do' | 'doing' | 'done';
+  comments: string[];
 }
 
 const ProjectView = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
   const [tasks, setTasks] = useState<Task[]>([]);
   const [todoTasks, setTodoTasks] = useState<Task[]>([]);
   const [doingTasks, setDoingTasks] = useState<Task[]>([]);
@@ -27,10 +28,10 @@ const ProjectView = () => {
 
   useEffect(() => {
     const tasks: Task[] = [
-      { taskid: 1, title: 'Task 1', developerName: 'Ahmad Abo-Tahoun', description: 'Description 1', state: 'done' },
-      { taskid: 2, title: 'Task 2', developerName: 'Ahmad Nader', description: 'Description 2', state: 'doing' },
-      { taskid: 3, title: 'Task 3', developerName: 'Mazin Sayed', description: 'Description 2', state: 'doing' },
-      { taskid: 4, title: 'Task 4', developerName: 'Hazem Mahmoud', description: 'Description 2', state: 'to-do' },
+      { taskid: 1, title: 'Task 1', developerName: 'Ahmad Abo-Tahoun', description: 'Description 1', state: 'done', comments: ['Comment 1', 'Comment 2'] },
+      { taskid: 2, title: 'Task 2', developerName: 'Ahmad Nader', description: 'Description 2', state: 'doing', comments: ['Comment 1'] },
+      { taskid: 3, title: 'Task 3', developerName: 'Mazin Sayed', description: 'Description 2', state: 'doing', comments: ['Comment 1'] },
+      { taskid: 4, title: 'Task 4', developerName: 'Hazem Mahmoud', description: 'Description 2', state: 'to-do', comments: ['Comment 1'] },
     ];
     setTasks(tasks);
     setDoneTasks(tasks.filter((task: Task) => task.state === 'done'));
@@ -39,7 +40,7 @@ const ProjectView = () => {
   }, [projectId]);
 
   const handleTaskClick = (taskId: number) => {
-    setSelectedTaskId(taskId);
+      setSelectedTaskId(taskId);
   };
 
   const filteredTasks = (tasks: Task[]) => {
@@ -115,9 +116,23 @@ const ProjectView = () => {
     setDoneTasks(dn);
   };
 
+    const handleTaskUpdate = (task: Task) => {
+        const index = tasks.findIndex(t => t.taskid === task.taskid);
+
+        if(index === -1) {
+            return;
+        }
+
+        const newTasks = Array.from(tasks);
+        newTasks[index] = task;
+        setTasks(newTasks);
+    };
+
+
+
   return (
     <div className="dashboard-container">
-      <NavBar onSearch={setSearchQuery} projectName={`Project ${projectId}`}/>
+      <NavBar onSearch={setSearchQuery} projectName={`Project ${projectId}`} tasks={tasks} setTasks={setTasks} />
       <Container className="container">
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -137,17 +152,14 @@ const ProjectView = () => {
           </Grid>
         </Grid>
       </Container>
-      {selectedTaskId && <TaskView taskId={selectedTaskId} onClose={() => setSelectedTaskId(null)} />}
-      {showAddTaskForm && (
-        <div className="floating-form-overlay">
-          <div className="floating-form">
-            <TaskCreationForm onCancel={() => setShowAddTaskForm(false)} />
-          </div>
-        </div>
+      {selectedTaskId !== null && (
+        <TaskView
+          task={tasks.find(task => task.taskid === selectedTaskId)!}
+          onClose={() => setSelectedTaskId(null)} onUpdateTask={handleTaskUpdate}
+        />
       )}
     </div>
   );
 };
-
 export default ProjectView;
 

@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { FormControl, InputLabel, MenuItem, Select, TextField, Button, Box } from '@mui/material';
+import { Task } from '../ProjectView';
 
 interface TaskCreationFormProps {
     onCancel: () => void; // Function to cancel adding a new task
@@ -7,33 +8,15 @@ interface TaskCreationFormProps {
 
 const developers = ["Ahmad Abo-Tahoun", "Ahmad Nader", "Mazin Sayed", "Hazem Mahmoud"];
 
-const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel }) => {
-    const taskNameRef = useRef<HTMLInputElement>(null); // Ref for task name input element
-    const titleRef = useRef<HTMLInputElement>(null); // Ref for task name input element
-    const developerNameRef = useRef<string>(''); // Ref for developer name input element
-    const descriptionRef = useRef<HTMLTextAreaElement>(null); // Ref for description textarea element
+const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel, }) => {
+    const titleRef = useRef<HTMLInputElement>(null); 
+    const developerNameRef = useRef<string>(''); 
+    const descriptionRef = useRef<HTMLTextAreaElement>(null); 
 
-    const handleCreationForm = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const taskName = taskNameRef.current?.value;
-        const title = titleRef.current?.value;
-        const developerName = developerNameRef;
-        const description = descriptionRef.current?.value;
-
-        // Here you can perform further actions with the form data, such as submitting it to a server or updating state.
-    };
 
     return (
         <Box sx={{ width: 400, bgcolor: 'background.paper', p: 2 }}>
-            <form onSubmit={handleCreationForm}>
-                <TextField
-                    fullWidth
-                    label="Task Name"
-                    placeholder="Enter task name"
-                    inputRef={taskNameRef}
-                    variant="outlined"
-                    margin="normal"
-                />
+            <form >
                 <TextField
                     fullWidth
                     label="Title"
@@ -47,7 +30,7 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel }) => {
                     <Select
                         labelId="developer-label"
                         id="developer"
-                        value={developerNameRef}
+                        value={developerNameRef.current}
                         onChange={(e) => developerNameRef.current = e.target.value as string}
                         label="Developer"
                     >

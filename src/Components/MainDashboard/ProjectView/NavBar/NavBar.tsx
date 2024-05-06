@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, TextField, styled, Dialog, DialogContent } from '@mui/material';
 import { Search as SearchIcon, Add as AddIcon } from '@mui/icons-material';
 import TaskCreationForm from '../TaskCreationForm/TaskCreationForm';
+import {Task} from '../ProjectView';
 
 interface NavBarProps {
   projectName: string;
   onSearch: (query: string) => void;
+  tasks: Task[];
+  setTasks: (tasks: Task[]) => void;
 }
 
 const StyledTextField = styled(TextField)({
@@ -25,7 +28,7 @@ const StyledTextField = styled(TextField)({
   },
 });
 
-const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch }) => {
+const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch}) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [openAddTaskDialog, setOpenAddTaskDialog] = useState<boolean>(false);
 
@@ -68,7 +71,7 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch }) => {
         </IconButton>
         <Dialog open={openAddTaskDialog} onClose={handleCloseAddTaskDialog}>
           <DialogContent>
-            <TaskCreationForm onCancel={handleCloseAddTaskDialog} />
+            <TaskCreationForm onCancel={handleCloseAddTaskDialog}  />
           </DialogContent>
         </Dialog>
       </Toolbar>
