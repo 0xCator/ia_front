@@ -2,161 +2,177 @@ import React, { useState, useEffect } from 'react';
 import ProjectSettings from './ProjectSettings/ProjectSettings';
 import ProjectCreationForm from './ProjectCreationForm/ProjectCreationForm';
 import ProjectCard from './ProjectCard/ProjectCard';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Button, Container, Paper, Box, Grid, Typography, Divider, IconButton } from '@mui/material';
+import Skeleton from '@mui/material/Skeleton';
+import AddIcon from '@mui/icons-material/Add';
+import { acceptRequestPath, projectsPath, rejectRequestPath } from '../../../Services/constants';
+import { getUserData } from '../../../Services/userData';
 
-interface Project {
-    id: number;
-    name: string;
-    state: number;
-}
+    interface Project {
+        id: number;
+        name: string;
+    }
 
-const Dashboard: React.FC = () => {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [showAddProjectForm, setShowAddProjectForm] = useState<boolean>(false);
-    const [showProjectSettings, setShowProjectSettings] = useState<boolean>(false);
-    const [selectedProject, setSelectedProject] = useState<string>('');
+    const Dashboard: React.FC = () => {
+        const [ledProjects, setLedProjects] = useState<Project[]>([]);
+        const [assignedProjects, setAssignedProjects] = useState<Project[]>([]);
+        const [requestProjects, setRequestProjects] = useState<Project[]>([]);
+        const [showAddProjectForm, setShowAddProjectForm] = useState<boolean>(false);
+        const [showProjectSettings, setShowProjectSettings] = useState<boolean>(false);
+        const [selectedProject, setSelectedProject] = useState<number>(-1);
+        const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(() => {
+        useEffect(() => {
+            fetchProjects();
+        }, []);
+
         const fetchProjects = async () => {
-            const fakeProjects: Project[] = [
-                { id: 1, name: 'Project 1', state: 0 },
-                { id: 2, name: 'Project 2', state: 1 },
-                { id: 3, name: 'Project 3', state: 2 },      
-                { id: 4, name: 'Project 4', state: 0 },
-                { id: 5, name: 'Project 5', state: 1 },
-                { id: 6, name: 'Project 6', state: 2 },         
-            ];
-            setProjects(fakeProjects);
+            setLoading(true);
             try {
-                const response = await fetch('/api/projects');
+                const response = await fetch(projectsPath + '/user/' + getUserData()?.user.nameid, {
+                    headers: {
+                        Authorization: `Bearer ${getUserData()?.token}`
+                    }
+                });
                 const data = await response.json();
-                setProjects(data);
+                setLedProjects(data.createdProjects);
+                setAssignedProjects(data.assignedProjects);
+                setRequestProjects(data.projectRequests);
             } catch (error) {
                 console.error('Error fetching projects:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchProjects();
-    }, []);
+        const handleShowProjectSettings = (projectID: number) => {
+            setShowProjectSettings(true);
+            setSelectedProject(projectID);
+        };
 
-    const handleShowProjectSettings = (projectName: string) => {
-        setShowProjectSettings(true);
-        setSelectedProject(projectName);
-    };
+        const handleCloseProjectSettings = () => {
+            setShowProjectSettings(false);
+            setSelectedProject(-1);
+        };
 
-    const handleCloseProjectSettings = () => {
-        setShowProjectSettings(false);
-        setSelectedProject('');
-    };
-
-    const handleAssignProject = async (projectName: string) => {
-        try {
-            // Make POST request to backend API to assign project
-            await fetch(`/api/projects/${projectName}/assign`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ projectName })
-            });
-            // Update projects after assignment
-            const updatedProjects = projects.map(project => {
-                if (project.name === projectName) {
-                    return { ...project, state: 1 };
-                }
-                return project;
-            });
-            setProjects(updatedProjects);
-        } catch (error) {
-            console.error('Error assigning project:', error);
+        const handleAddProject = async () => {
+            fetchProjects();
         }
-    };
 
-    const handleDeleteProject = async (projectName: string) => {
-        try {
-            // Make DELETE request to backend API to delete project
-            await fetch(`/api/projects/${projectName}`, {
-                method: 'DELETE'
-            });
-            // Update projects after deletion
-            const updatedProjects = projects.filter(project => project.name !== projectName);
-            setProjects(updatedProjects);
-        } catch (error) {
-            console.error('Error deleting project:', error);
-        }
-    };
+        const handleAssignProject = async (projectID: number, projectName: string) => {
+            try {
+                // Make POST request to backend API to assign project
+                await fetch(acceptRequestPath, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${getUserData()?.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ projectID, UserID: getUserData()?.user.nameid})
+                });
+                // Update projects after assignment
+                const removeRequest = requestProjects.filter(project => project.id !== projectID);
+                setRequestProjects(removeRequest);
+                const updatedProjects = assignedProjects.slice();
+                updatedProjects.push({ id: projectID, name: projectName } as Project);
+                setAssignedProjects(updatedProjects);
+            } catch (error) {
+                console.error('Error assigning project:', error);
+            }
+        };
 
-    const teamLeaderProjects = projects.filter(project => project.state === 0);
-    const assignedDeveloperProjects = projects.filter(project => project.state === 1);
-    const requestProjects = projects.filter(project => project.state === 2);
+        const handleDeleteProject = async (projectID: number) => {
+            try {
+                // Make DELETE request to backend API to delete project
+                await fetch(rejectRequestPath, {
+                    headers: {
+                        Authorization: `Bearer ${getUserData()?.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({ projectID, UserID: getUserData()?.user.nameid})
+                });
+                // Update projects after deletion
+                const updatedProjects = requestProjects.filter(project => project.id !== projectID);
+                setRequestProjects(updatedProjects);
+            } catch (error) {
+                console.error('Error deleting project:', error);
+            }
+        };
 
-    return (
-        <div className="dashboard-container" style={{ backgroundColor: '#212529', color: '#000' }}>  
-            <h1>Project Dashboard</h1>
-            <Container fluid>  
-                <Row>
-                    <Col>
-                      <div className="project-cards-container" style={{ backgroundColor: '#343a40', padding: 10, borderRadius: 8 }}> 
-                        <h2>Team Leader Projects</h2>
-                        <div className="project-cards-wrapper" style={{ display: 'flex', flexWrap: 'wrap' }}> 
-                            {teamLeaderProjects.map(project => (
-                              <ProjectCard 
-                              key={project.id} 
-                              projectName={project.name} 
-                              state={project.state} 
-                              onShowSettings={handleShowProjectSettings}
-                              onAssign={handleAssignProject} // Make sure to pass onAssign prop
-                              onDelete={handleDeleteProject} // Make sure to pass onDelete prop
-                          />
+return (
+        <>
+            <Container sx={{bgcolor:'white', mt:2}}>
+                <Box sx={{mb:4}}>
+                    <Typography variant="h2" align="center">Projects Dashboard</Typography>
+                </Box>
+                <Grid xs={12} sm={8} md={5} component={Paper} elevation={6} padding={1}>
+                    <Grid container sx={{padding:1}}>
+                        <Grid xs={11}>
+                            <Typography variant="h5" align="left">Projects</Typography>
+                        </Grid>
+                        <Grid xs={1} sx={{textAlign: "right"}}>
+                            <IconButton color="primary" onClick={() => setShowAddProjectForm(true)}><AddIcon/></IconButton>
+                        </Grid>
+                    </Grid>  
+                    <Divider />
+                    {loading ? (
+                        <Grid container spacing={4} padding={2}>
+                            {[1, 2, 3].map((value) => (
+                                <Grid item xs={12} sm={6} md={4}>
+                                    <Skeleton variant="rounded" height={200} />
+                                </Grid>
                             ))}
-                        </div>
-                        <h2>Assigned Developer Projects</h2>
-                        <div className="project-cards-wrapper" style={{ display: 'flex', flexWrap: 'wrap' }}> 
-                            {assignedDeveloperProjects.map(project => (
-                              <ProjectCard 
-                              key={project.id} 
-                              projectName={project.name} 
-                              state={project.state} 
-                              onShowSettings={handleShowProjectSettings}
-                              onAssign={handleAssignProject} // Make sure to pass onAssign prop
-                              onDelete={handleDeleteProject} // Make sure to pass onDelete prop
-                          />
-                            ))}
-                        </div>
-                        <h2>Request Projects</h2>
-                            <div className="project-cards-wrapper" style={{ display: 'flex', flexWrap: 'wrap' }}> 
-                            {requestProjects.map(project => (
-                              <ProjectCard 
-                              key={project.id} 
-                              projectName={project.name} 
-                              state={project.state} 
-                              onShowSettings={handleShowProjectSettings}
-                              onAssign={handleAssignProject} // Make sure to pass onAssign prop
-                              onDelete={handleDeleteProject} // Make sure to pass onDelete prop
-                          />
-                            ))}
-                        </div>
-                      </div>
-                    </Col>
-                </Row>
+                        </Grid>
+                    ) : (
+                    <Grid container spacing={4} padding={2}>
+                        {requestProjects.map(project => (
+                            <Grid item xs={12} sm={6} md={4}>
+                                <ProjectCard 
+                                    key={project.id}
+                                    projectID={project.id}
+                                    projectName={project.name} 
+                                    state={2} 
+                                    onShowSettings={handleShowProjectSettings}
+                                    onAssign={handleAssignProject}
+                                    onDelete={handleDeleteProject}
+                                />
+                            </Grid>
+                        ))}
+                        {ledProjects.map(project => (
+                            <Grid item xs={12} sm={6} md={4}>
+                                <ProjectCard 
+                                    key={project.id} 
+                                    projectID={project.id}
+                                    projectName={project.name} 
+                                    state={0} 
+                                    onShowSettings={handleShowProjectSettings}
+                                    onAssign={handleAssignProject}
+                                    onDelete={handleDeleteProject}
+                                />
+                            </Grid>
+                        ))}
+                        {assignedProjects.map(project => (
+                            <Grid item xs={12} sm={6} md={4}>
+                                <ProjectCard 
+                                    key={project.id} 
+                                    projectID={project.id}
+                                    projectName={project.name} 
+                                    state={1} 
+                                    onShowSettings={handleShowProjectSettings}
+                                    onAssign={handleAssignProject}
+                                    onDelete={handleDeleteProject}
+                                />
+                            </Grid>    
+                        ))}
+                    </Grid>)}
+                </Grid>
+             
+            {showAddProjectForm && (<ProjectCreationForm onAddProject={handleAddProject} onCancel={() => setShowAddProjectForm(false)} />)}
+            {showProjectSettings && (<ProjectSettings projectID={selectedProject} onClose={handleCloseProjectSettings} />)}
             </Container>
-            <div className="add-project-container" style={{  }}>
-                <button className="add-project-button" onClick={() => setShowAddProjectForm(true)}>New</button>
-                {showAddProjectForm && (
-                    <div className="floating-form-overlay">
-                        <div className="floating-form">
-                            <ProjectCreationForm onCancel={() => setShowAddProjectForm(false)} />
-                        </div>
-                    </div>
-                )}
-            </div>
-            {showProjectSettings && (
-                <div className="project-settings-overlay">
-                    <ProjectSettings projectName={selectedProject} onClose={handleCloseProjectSettings} />
-                </div>
-            )}
-        </div>
+        </>
     );
-};
+    };
 
-export default Dashboard;
+    export default Dashboard;

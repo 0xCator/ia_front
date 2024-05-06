@@ -8,3 +8,7 @@ export const projectApi = `${backEndPath}api/Project/`;
 export const getTaskCommentApi = `${backEndPath}api/Comment/Task/`;
 export const addTaskCommentApi = `${backEndPath}api/Comment/`;
 export const addTaskApi = `${backEndPath}api/ProjectTask/`;
+export const projectsPath = `${backEndPath}api/project`;
+export const handleDeveloperPath = (projectID: number, developerUsername: string) => `${backEndPath}api/project/${projectID}/developer/${developerUsername}`;
+export const acceptRequestPath = `${backEndPath}api/user/acceptRequest`;
+export const rejectRequestPath = `${backEndPath}api/user/rejectRequest`;
