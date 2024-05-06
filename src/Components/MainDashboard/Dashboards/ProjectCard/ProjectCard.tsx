@@ -5,7 +5,6 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
-import './ProjectCard.css'
 
 interface ProjectCardProps {
     projectName: string;

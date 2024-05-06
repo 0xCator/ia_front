@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import ProjectSettings from './ProjectSettings/ProjectSettings';
 import ProjectCreationForm from './ProjectCreationForm/ProjectCreationForm';
 import ProjectCard from './ProjectCard/ProjectCard';
-import './Dashboards.css';
 import { Container, Row, Col } from 'react-bootstrap';
 
 interface Project {

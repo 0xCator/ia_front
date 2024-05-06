@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import './TaskCreationForm.css'; // Import CSS file
 
 interface TaskCreationFormProps {
     onCancel: () => void; // Function to cancel adding a new task

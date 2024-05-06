@@ -7,8 +7,6 @@ interface Props {
 
 export const AuthGuard: React.FC<Props>  = (props) => {
   const user = getUserData();
-  console.log(user);
-  console.log(props.logRequired);
 
   if (props.logRequired) {
     return <>{user!=null ? <Outlet/> : <Navigate to="/login" />}</>;

@@ -1,7 +1,6 @@
 // ProjectSettings.tsx
 
 import React, { useState, useEffect } from 'react';
-import './ProjectSettings.css'; // Import CSS file
 
 interface ProjectSettingsProps {
     projectName: string;
