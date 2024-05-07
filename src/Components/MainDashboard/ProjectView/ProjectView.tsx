@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid } from '@mui/material';
+import { Box, Container, Grid } from '@mui/material';
 import { DragDropContext } from 'react-beautiful-dnd';
 import TaskView from './TaskView/TaskView';
 import { useParams } from 'react-router-dom';
@@ -304,10 +304,10 @@ const ProjectView = () => {
 
 
   return (
-    <div className="dashboard-container">
-      <NavBar onSearch={setSearchQuery} projectName={project?.projectName} tasks={tasks} setTasks={setTasks} project={project!} />
+    <> 
+      <NavBar onSearch={setSearchQuery} projectName={project?.projectName} tasks={tasks} setTasks={setTasks} project={project!}/>  
       <Container className="container">
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{mt:8}}>
           <Grid item xs={12}>
             <DragDropContext onDragEnd={onDragEnd}>
               <Grid container spacing={2}>
@@ -331,7 +331,7 @@ const ProjectView = () => {
           onClose={() => setSelectedTaskId(null)} onUpdateTask={handleTaskUpdate}
         />
       )}
-    </div>
+    </>
   );
 };
 

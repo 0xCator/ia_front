@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Typography, IconButton, TextField, styled, Dialog, Dia
 import { Search as SearchIcon, Add as AddIcon } from '@mui/icons-material';
 import TaskCreationForm from '../TaskCreationForm/TaskCreationForm';
 import {Task, Project} from '../ProjectView';
+import { Box } from '@mui/material';
 
 interface NavBarProps {
   projectName: string | undefined;
@@ -48,12 +49,13 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project}) => {
   };
 
   return (
-    <AppBar position="static">
-      <Toolbar style={{ justifyContent: 'space-between' }}>
+    <Box sx={{ flexGrow: 1 }}>
+    <AppBar position="fixed">
+      <Toolbar sx={{justifyContent:"space-between"}}>
         <Typography variant="h6" component="div">
           {projectName}
         </Typography>
-        <div style={{ display: 'flex', alignItems: 'center', width: '50%', minWidth: '300px' }}>
+        <Box style={{ display: 'flex', alignItems: 'center', width: '50%', minWidth: '300px' }}>
           <IconButton disabled>
             <SearchIcon />
           </IconButton>
@@ -66,7 +68,7 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project}) => {
             autoFocus
             variant="outlined"
           />
-        </div>
+        </Box>
         <IconButton color="inherit" onClick={handleAddTaskClick}>
           <AddIcon />
         </IconButton>
@@ -77,6 +79,7 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project}) => {
         </Dialog>
       </Toolbar>
     </AppBar>
+    </Box>
   );
 };
 
