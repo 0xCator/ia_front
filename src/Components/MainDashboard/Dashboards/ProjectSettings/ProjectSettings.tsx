@@ -1,6 +1,6 @@
 // ProjectSettings.tsx
 
-import { Accordion, AccordionDetails, AccordionSummary, Alert, Dialog, DialogContent, DialogTitle, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Dialog, DialogContent, DialogTitle, Divider, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -102,22 +102,26 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, onClose })
                 <Accordion>
                     <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
                         <Typography>Developers Assigned</Typography>
-                        
                     </AccordionSummary>
                     <AccordionDetails>
                         {loading ? (
                             <Typography>Loading developers...</Typography>
                         ) : (
                             <List>
+                                <Divider />
                                 {developers.map((developer, index) => (
-                                    <ListItem key={index}
-                                    secondaryAction={
-                                        <IconButton onClick={() => handleDeleteDeveloper(developer.username)} edge="end" color='error' aria-label="delete">
-                                          <DeleteIcon />
-                                        </IconButton>
-                                      }>
-                                        <Typography>{developer.name} ({developer.username})</Typography>
-                                    </ListItem>
+                                    <React.Fragment key={index}>
+                                        <ListItem
+                                            secondaryAction={
+                                                <IconButton onClick={() => handleDeleteDeveloper(developer.username)} edge="end" color='error' aria-label="delete">
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            }
+                                        >
+                                            <Typography>{developer.name} ({developer.username})</Typography> 
+                                        </ListItem>
+                                        <Divider />
+                                    </React.Fragment>
                                 ))}
                             </List>
                         )}
@@ -136,15 +140,15 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, onClose })
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                            <IconButton onClick={handleAddDeveloper} edge="end" color="primary">
-                                <AddIcon />
-                            </IconButton>
+                                <IconButton onClick={handleAddDeveloper} edge="end" color="primary">
+                                    <AddIcon />
+                                </IconButton>
                             </InputAdornment>
                         ),
-                        }}
+                    }}
                 />
                 {creationError && 
-                <Alert severity="error">{creationError}</Alert>
+                    <Alert severity="error">{creationError}</Alert>
                 }
             </DialogContent>
         </Dialog>

@@ -57,7 +57,7 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project}) => {
         </Typography>
         <Box style={{ display: 'flex', alignItems: 'center', width: '50%', minWidth: '300px' }}>
           <IconButton disabled>
-            <SearchIcon />
+            <SearchIcon style={{ color: '#fff' }} fontSize='large'/>
           </IconButton>
           <StyledTextField
             type="text"
