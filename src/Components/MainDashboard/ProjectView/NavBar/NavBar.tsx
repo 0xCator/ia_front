@@ -50,7 +50,7 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project}) => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-    <AppBar position="fixed">
+    <AppBar position="fixed" sx={{padding:1/2}}>
       <Toolbar sx={{justifyContent:"space-between"}}>
         <Typography variant="h6" component="div">
           {projectName}
