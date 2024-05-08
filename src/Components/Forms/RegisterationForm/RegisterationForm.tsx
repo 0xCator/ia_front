@@ -16,11 +16,11 @@ const RegistrationForm: React.FC = () => {
     const email = useRef<HTMLInputElement>(null);
     const Name = useRef<HTMLInputElement>(null);
     const password = useRef<HTMLInputElement>(null);
-    const [role, setRole] = React.useState('');
+    const [role, setRole] = React.useState(0);
     const navigate = useNavigate();
 
     const handleChange = (event: SelectChangeEvent) => {
-        setRole(event.target.value as string);
+      setRole(event.target.value as unknown as number);
     };
 
     const signup = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -30,7 +30,7 @@ const RegistrationForm: React.FC = () => {
             Email: email.current?.value,
             Name: Name.current?.value,
             Password: password.current?.value,
-            Role: role.toLowerCase(),
+            Role: role,
         };
         console.log(data);
     
@@ -129,19 +129,19 @@ const RegistrationForm: React.FC = () => {
                 inputRef={password}
               />
               
-              <FormControl fullWidth sx={{mt:2}}>
-                <InputLabel id="role-label">Role</InputLabel>
-                <Select
-                  labelId="role-label"
-                  id="role"
-                  value={role}
-                  label="Age"
-                  onChange={handleChange}
-                >
-                <MenuItem value={'Team Leader'}>Team Leader</MenuItem>
-                <MenuItem value={'Developer'}>Developer</MenuItem>
-              </Select>
-            </FormControl>
+                <FormControl fullWidth sx={{mt:2}}>
+                  <InputLabel id="role-label">Role</InputLabel>
+                  <Select
+                    labelId="role-label"
+                    id="role"
+                    value={role.toString()} // Convert role to string
+                    label="Age"
+                    onChange={handleChange}
+                  >
+                  <MenuItem value={0}>Team Leader</MenuItem>
+                  <MenuItem value={1}>Developer</MenuItem>
+                </Select>
+              </FormControl>
 
               <Button
                 type="submit"
