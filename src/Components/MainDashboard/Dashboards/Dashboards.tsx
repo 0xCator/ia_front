@@ -113,7 +113,9 @@ return (
                             <Typography variant="h5" align="left">Projects</Typography>
                         </Grid>
                         <Grid xs={1} sx={{textAlign: "right"}}>
-                            <IconButton color="primary" onClick={() => setShowAddProjectForm(true)}><AddIcon/></IconButton>
+                            {getUserData()?.user.role !== 'TeamLeader' && (
+                                <IconButton color="primary" onClick={() => setShowAddProjectForm(true)}><AddIcon/></IconButton>
+                            )}
                         </Grid>
                     </Grid>  
                     <Divider />
