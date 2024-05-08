@@ -30,7 +30,7 @@ const RegistrationForm: React.FC = () => {
             Email: email.current?.value,
             Name: Name.current?.value,
             Password: password.current?.value,
-            role: role.toLowerCase(),
+            Role: role.toLowerCase(),
         };
         console.log(data);
     
