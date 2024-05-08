@@ -12,7 +12,8 @@ import { getUserData } from '../../../Services/userData';
         id: number;
         name: string;
     }
-
+    // Hide buttons depending on the role
+    
     const Dashboard: React.FC = () => {
         const [ledProjects, setLedProjects] = useState<Project[]>([]);
         const [assignedProjects, setAssignedProjects] = useState<Project[]>([]);

@@ -5,6 +5,10 @@ import Button from '@mui/material/Button';
 import React, { useState, useRef } from 'react';
 import { setUserData } from '../../../Services/userData';
 import { registerPath } from '../../../Services/constants';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 const RegistrationForm: React.FC = () => {
     const [signupError, setSignupError] = useState<string | null>(null);
@@ -12,7 +16,12 @@ const RegistrationForm: React.FC = () => {
     const email = useRef<HTMLInputElement>(null);
     const Name = useRef<HTMLInputElement>(null);
     const password = useRef<HTMLInputElement>(null);
+    const [role, setRole] = React.useState('');
     const navigate = useNavigate();
+
+    const handleChange = (event: SelectChangeEvent) => {
+        setRole(event.target.value as string);
+    };
 
     const signup = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -118,6 +127,21 @@ const RegistrationForm: React.FC = () => {
                 autoComplete="current-password"
                 inputRef={password}
               />
+              
+              <FormControl fullWidth sx={{mt:2}}>
+                <InputLabel id="role-label">Role</InputLabel>
+                <Select
+                  labelId="role-label"
+                  id="role"
+                  value={role}
+                  label="Age"
+                  onChange={handleChange}
+                >
+                <MenuItem value={'Team Leader'}>Team Leader</MenuItem>
+                <MenuItem value={'Developer'}>Developer</MenuItem>
+              </Select>
+            </FormControl>
+
               <Button
                 type="submit"
                 fullWidth

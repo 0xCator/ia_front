@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 export interface User {
     unique_name: string,
     nameid: number,
+    role: string,
 }
 
 
