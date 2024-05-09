@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import { Task, Comment } from '../ProjectView';
-import { Typography } from '@mui/material';
+import { Typography, CircularProgress } from '@mui/material'; 
 import { Developer } from '../ProjectView';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -27,7 +27,7 @@ interface TaskViewProps {
   onUpdateTask: (updatedTask: Task) => void;
   onDeleteTask: (taskId: number) => void;
   developers: Developer[] | undefined;
-  showAlert : (t: 'error'| 'info') => void;
+  showAlert: (t: 'error' | 'info') => void;
 }
 
 const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, developers, onDeleteTask, showAlert }) => {
@@ -35,9 +35,10 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
   const [editing, setEditing] = useState<boolean>(false);
   const [editedTask, setEditedTask] = useState<Task>(task);
   const [selectedDeveloper, setSelectedDeveloper] = useState<string>(task.developerId.toString());
+  const [loadingAttachment, setLoadingAttachment] = useState<boolean>(false); // State for loading attachment
   const userData: User = getUserData()!.user;
 
- useEffect(() => {
+  useEffect(() => {
     // Function to update comment colors based on their state
     const updateCommentColors = () => {
       const updatedComments = task.comments.map((comment) => {
@@ -55,98 +56,99 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
 
     updateCommentColors();
 
-         fetch(`${taskGetAttachmentName}${task.taskid}/attachmentname`,{
-              method: 'GET',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-              }
-          }).then(response => {
-              if (!response.ok) {
-                  throw new Error('Network response was not ok');
-              }
-              return response.text();
-          }).then(data => {
-              task.attachment = data;
-          }).catch(error => {
-              console.error('There has been a problem with your fetch operation:', error);
-          });
+    fetch(`${taskGetAttachmentName}${task.taskid}/attachmentname`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+      }
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.text();
+    }).then(data => {
+      task.attachment = data;
+    }).catch(error => {
+      console.error('There has been a problem with your fetch operation:', error);
+    });
 
   }, [task.comments, task.taskid, task.attachment]);
 
- const handleDownloadAttachment = () => {
-     fetch(`${taskDwonloadattachment}/${task.taskid}/attachmentfile`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-        }
+  const handleDownloadAttachment = () => {
+    fetch(`${taskDwonloadattachment}/${task.taskid}/attachmentfile`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+      }
     }).then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.blob();
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.blob();
     }).then(blob => {
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', (task.attachment as string));
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', (task.attachment as string));
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
     }
     ).catch(error => {
-        console.error('There has been a problem with your fetch operation:', error);
+      console.error('There has been a problem with your fetch operation:', error);
     });
- };
+  };
 
   const handleAddComment = () => {
     if (newComment && newComment.trim() !== '') {
-        const newCommentObj: Comment = {
+      const newCommentObj: Comment = {
         content: newComment,
         state: 'load',
         author: userData.unique_name,
         color: getBorderColor(),
-        };
-        const updatedTask: Task = {
-            title: task.title,
-            description: task.description,
-            state: task.state,
-            developerId: task.developerId,
-            taskid: task.taskid,
-            developerName: task.developerName,
-            draggable: task.draggable,
-            comments: [...task.comments, newCommentObj],
-        };
+      };
+      const updatedTask: Task = {
+        title: task.title,
+        description: task.description,
+        state: task.state,
+        developerId: task.developerId,
+        taskid: task.taskid,
+        developerName: task.developerName,
+        draggable: task.draggable,
+        comments: [...task.comments, newCommentObj],
+      };
 
-        fetch(`${addTaskCommentApi}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-            },
-            body: JSON.stringify({
-            content: newComment,
-            taskid: task.taskid,
-            userid: userData.nameid,
-            parentcommentid: null})
-        }).then(response => {
-            if (!response.ok) {
-                newCommentObj.state = 'fail';
-                throw new Error('Network response was not ok');
-            }
-            newCommentObj.state = 'sent';
-            setEditedTask(updatedTask);
-            return response.json();
+      fetch(`${addTaskCommentApi}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+        },
+        body: JSON.stringify({
+          content: newComment,
+          taskid: task.taskid,
+          userid: userData.nameid,
+          parentcommentid: null
+        })
+      }).then(response => {
+        if (!response.ok) {
+          newCommentObj.state = 'fail';
+          throw new Error('Network response was not ok');
         }
-        ).catch(error => {
-            newCommentObj.state = 'fail';
-            setEditedTask(updatedTask);
-            console.error('There has been a problem with your fetch operation:', error);
-        });
+        newCommentObj.state = 'sent';
+        setEditedTask(updatedTask);
+        return response.json();
+      }
+      ).catch(error => {
+        newCommentObj.state = 'fail';
+        setEditedTask(updatedTask);
+        console.error('There has been a problem with your fetch operation:', error);
+      });
 
 
-        onUpdateTask(updatedTask);
-        setNewComment('');
+      onUpdateTask(updatedTask);
+      setNewComment('');
     }
   };
 
@@ -198,35 +200,38 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
   const handleDeveloperChange = (e: SelectChangeEvent) => {
     setSelectedDeveloper(e.target.value);
   };
-    const handleAttachmentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAttachmentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-        handleAttachmentUpload(event.target.files);
+      handleAttachmentUpload(event.target.files);
     }
   };
-    
-    const handleAttachmentUpload = (files: FileList) => {
-        const file = files[0];
-        if (file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            fetch(`${taskUplaodAttachment}/${task.taskid}/uploadattachment`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-                },
-                body: formData
-            }).then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                showAlert('info');
-                return response.json();
-            }
-            ).catch(error => {
-                console.error('There has been a problem with your fetch operation:', error);
-            });
+
+  const handleAttachmentUpload = (files: FileList) => {
+    setLoadingAttachment(true); // Set loading state to true when upload starts
+    const file = files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      fetch(`${taskUplaodAttachment}/${task.taskid}/uploadattachment`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+        },
+        body: formData
+      }).then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
         }
+        setLoadingAttachment(false); // Set loading state to false when upload completes
+        showAlert('info');
+        return response.json();
+      }
+      ).catch(error => {
+        setLoadingAttachment(false); // Set loading state to false if there's an error
+        console.error('There has been a problem with your fetch operation:', error);
+      });
     }
+  }
 
   return (
     <Dialog
@@ -256,28 +261,33 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
               #{task.taskid} {task.title}
             </div>
             <div>
-        {task.attachment && (
+              {task.attachment && (
                 <IconButton onClick={handleDownloadAttachment} color="inherit">
-                <GetAppIcon />
+                  <GetAppIcon />
                 </IconButton>
-                )}
-            {userData.role === 'Developer' && Number(userData.nameid) === Number(task.developerId)  && (
+              )}
+            {loadingAttachment? (
+                <CircularProgress />
+            ) : (
             <>
-            <input
-            accept="image/*,application/pdf"
-            style={{ display: 'none' }}
-            id="attachment-input"
-            type="file"
-            onChange={handleAttachmentChange}
-            />
-            <label htmlFor="attachment-input">
-            <IconButton component="span">
-            <AttachFileIcon /> 
-            </IconButton>
-            </label>
+              {userData.role === 'Developer' && Number(userData.nameid) === Number(task.developerId) && (
+                <>
+                  <input
+                    accept="image/*,application/pdf"
+                    style={{ display: 'none' }}
+                    id="attachment-input"
+                    type="file"
+                    onChange={handleAttachmentChange}
+                  />
+                  <label htmlFor="attachment-input">
+                    <IconButton component="span">
+                      <AttachFileIcon />
+                    </IconButton>
+                  </label>
+                </>
+              )}
             </>
             )}
-
               {userData.role === 'TeamLeader' && (
                 <>
                   <IconButton onClick={handleEditClick} color="inherit">
@@ -338,7 +348,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
                 {task.comments.map((comment, index) => (
                   <li
                     key={index}
-                    style={{ marginBottom: '8px', borderLeft: `4px solid ${comment.state === 'sent'? getBorderColor() : 'gray'}`, paddingLeft: '8px' }}
+                    style={{ marginBottom: '8px', borderLeft: `4px solid ${comment.state === 'sent' ? getBorderColor() : 'gray'}`, paddingLeft: '8px' }}
                   >
                     <strong>{comment.author}</strong>: {comment.content}
                   </li>
@@ -367,3 +377,4 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
 };
 
 export default TaskView;
+
