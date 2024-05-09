@@ -14,8 +14,10 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import { User, getUserData } from '../../../../Services/userData';
-import { addTaskCommentApi } from '../../../../Services/constants';
+import { addTaskCommentApi, taskUplaodAttachment, taskDwonloadattachment } from '../../../../Services/constants';
 import { useEffect } from 'react';
 
 interface TaskViewProps {
@@ -52,10 +54,32 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
     updateCommentColors();
   }, [task.comments]);
 
+ const handleDownloadAttachment = () => {
+     fetch(`${taskDwonloadattachment}/${task.taskid}/attachmentfile`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+        }
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.blob();
+    }).then(blob => {
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', (task.attachment as string));
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode?.removeChild(link);
+    }
+    ).catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+    });
+ };
+
   const handleAddComment = () => {
-
-      console.log(newComment);
-
     if (newComment && newComment.trim() !== '') {
         const newCommentObj: Comment = {
         content: newComment,
@@ -154,6 +178,34 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
   const handleDeveloperChange = (e: SelectChangeEvent) => {
     setSelectedDeveloper(e.target.value);
   };
+    const handleAttachmentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+        handleAttachmentUpload(event.target.files);
+    }
+  };
+    
+    const handleAttachmentUpload = (files: FileList) => {
+        const file = files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch(`${taskUplaodAttachment}/${task.taskid}/uploadattachment`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+                },
+                body: formData
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            }
+            ).catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+        }
+    }
 
   return (
     <Dialog
@@ -183,6 +235,28 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
               #{task.taskid} {task.title}
             </div>
             <div>
+        {task.attachment && (
+                <IconButton onClick={handleDownloadAttachment} color="inherit">
+                <GetAppIcon />
+                </IconButton>
+                )}
+            {userData.role === 'Developer' && (
+            <>
+            <input
+            accept="image/*,application/pdf"
+            style={{ display: 'none' }}
+            id="attachment-input"
+            type="file"
+            onChange={handleAttachmentChange}
+            />
+            <label htmlFor="attachment-input">
+            <IconButton component="span">
+            <AttachFileIcon /> 
+            </IconButton>
+            </label>
+            </>
+            )}
+
               {userData.role === 'TeamLeader' && (
                 <>
                   <IconButton onClick={handleEditClick} color="inherit">

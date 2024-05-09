@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Grid } from '@mui/material';
+import { Alert, Container, Grid } from '@mui/material';
 import { DragDropContext } from 'react-beautiful-dnd';
 import TaskView from './TaskView/TaskView'; import { useParams } from 'react-router-dom'; import Column from './ProjectColumn/PrjectColumn'; import NavBar from './NavBar/NavBar'; // Import the NavBar component
 import { projectTaskApi} from '../../../Services/constants';
 import { projectUpdateTaskStateApi } from '../../../Services/constants';
 import { projectApi } from '../../../Services/constants';
 import { getTaskCommentApi } from '../../../Services/constants';
-import { addTaskCommentApi, projectUpdateTaskApi, projectDeleteTaskApi} from '../../../Services/constants';
+import { taskGetAttachmentName, projectUpdateTaskApi, projectDeleteTaskApi} from '../../../Services/constants';
 import { CheckCircleOutline, AlarmOn, DoneAll } from '@mui/icons-material'; // Import the icons
 import { useNavigate } from 'react-router-dom';
 import { getUserData, User} from '../../../Services/userData';
+
+
+const initialState = {
+  attachmentUploaded: false,
+  showAlert: false,
+};
 
 export interface Developer {
     id: number;
@@ -38,6 +44,7 @@ export interface Task {
   developerId: number;
   description: string;
   state: 'to-do' | 'doing' | 'done';
+  attachment?: string;
   comments: Comment[];
   draggable: boolean;
 }
@@ -53,6 +60,26 @@ const ProjectView = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const navigate = useNavigate();
   const user: User = getUserData()!.user;
+  const [state, setState] = useState(initialState);
+
+ const showAlert = () => {
+    setState(prevState => ({
+      ...prevState,
+      showAlert: true,
+    }));
+
+    // Automatically close the alert after 3 seconds
+    setTimeout(() => {
+      handleCloseAlert();
+    }, 3000);
+  };
+
+  const handleCloseAlert = () => {
+    setState(prevState => ({
+      ...prevState,
+      showAlert: false,
+    }));
+  };
 
 
     const statusIntToString = (status: number) => {
@@ -163,6 +190,25 @@ const ProjectView = () => {
                 }).catch(error => {
                     console.error('There has been a problem with your fetch operation:', error);
                 });
+
+                fetch(`${taskGetAttachmentName}${element.taskid}/attachmentname`,{
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+                        }
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    }).then(data => {
+                        element.attachment = data;
+                    }).catch(error => {
+                        console.error('There has been a problem with your fetch operation:', error);
+                    });
+
+
             });
 
             for (let i = 0; i < tasks.length; i++) {
@@ -273,6 +319,7 @@ const ProjectView = () => {
         setDoingTasks(d);
         return;
       } else if (destination.droppableId === 'done') {
+
         dn.splice(source.index, 1);
         dn.splice(destination.index, 0, tasks.find(task => task.taskid === parseInt(draggableId))!);
         setDoneTasks(dn);
@@ -289,6 +336,11 @@ const ProjectView = () => {
       d[destination.index].state = "doing";
       updateTaskState(d[destination.index].taskid,"doing");
     } else if (destination.droppableId === 'done') {
+      const task = tasks.find(task => task.taskid === parseInt(draggableId))!;
+      if(task && !task.attachment){
+        showAlert();
+        return;
+      }
       dn.splice(destination.index, 0, tasks.find(task => task.taskid === parseInt(draggableId))!);
       dn[destination.index].state = "done";
       updateTaskState(dn[destination.index].taskid,"done");
@@ -384,6 +436,15 @@ const ProjectView = () => {
           developers={project?.developers}
           onDeleteTask={handleTaskDelete}
         />
+      )}
+      {state.showAlert && (
+       <Alert 
+        severity="error" 
+        onClose={handleCloseAlert} 
+        sx={{ position: 'fixed', bottom: 20, right: 20 }}
+      >
+        Please upload an attachment before marking the task as "done".
+      </Alert>
       )}
     </>
   );
