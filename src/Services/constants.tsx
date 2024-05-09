@@ -18,4 +18,4 @@ export const handleDeveloperPath = (projectID: number, developerUsername: string
 export const acceptRequestPath = `${backEndPath}api/user/acceptRequest`;
 export const rejectRequestPath = `${backEndPath}api/user/rejectRequest`;
 
-export const websocketPath = (nameid: number) => `ws://internetapplications-devopstask.azurewebsites.net/${nameid}`;
+export const websocketPath = (nameid: number) => `wss://internetapplications-devopstask.azurewebsites.net/ws/?id=${nameid}`;
