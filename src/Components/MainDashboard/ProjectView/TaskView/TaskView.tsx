@@ -5,7 +5,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
-import { Task } from '../ProjectView';
+import { Task, Comment } from '../ProjectView';
 import { Typography } from '@mui/material';
 import { Developer } from '../ProjectView';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -15,6 +15,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
 import { User, getUserData } from '../../../../Services/userData';
+import { addTaskCommentApi } from '../../../../Services/constants';
+import { useEffect } from 'react';
 
 interface TaskViewProps {
   task: Task;
@@ -31,11 +33,76 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
   const [selectedDeveloper, setSelectedDeveloper] = useState<string>(task.developerId.toString());
   const userData: User = getUserData()!.user;
 
+ useEffect(() => {
+    // Function to update comment colors based on their state
+    const updateCommentColors = () => {
+      const updatedComments = task.comments.map((comment) => {
+        if (comment.state === 'sent') {
+          return { ...comment, color: getBorderColor() };
+        } else {
+          return { ...comment, color: 'gray' };
+        }
+      });
+      setEditedTask((prevState) => ({
+        ...prevState,
+        comments: updatedComments,
+      }));
+    };
+
+    updateCommentColors();
+  }, [task.comments]);
+
   const handleAddComment = () => {
-    if (newComment.trim() !== '') {
-      const updatedTask = { ...task, comments: [...task.comments, newComment] };
-      onUpdateTask(updatedTask);
-      setNewComment('');
+
+      console.log(newComment);
+
+    if (newComment && newComment.trim() !== '') {
+        const newCommentObj: Comment = {
+        content: newComment,
+        state: 'load',
+        author: userData.unique_name,
+        color: getBorderColor(),
+        };
+        const updatedTask: Task = {
+            title: task.title,
+            description: task.description,
+            state: task.state,
+            developerId: task.developerId,
+            taskid: task.taskid,
+            developerName: task.developerName,
+            draggable: task.draggable,
+            comments: [...task.comments, newCommentObj],
+        };
+
+        fetch(`${addTaskCommentApi}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+            },
+            body: JSON.stringify({
+            content: newComment,
+            taskid: task.taskid,
+            userid: userData.nameid,
+            parentcommentid: null})
+        }).then(response => {
+            if (!response.ok) {
+                newCommentObj.state = 'fail';
+                throw new Error('Network response was not ok');
+            }
+            newCommentObj.state = 'sent';
+            setEditedTask(updatedTask);
+            return response.json();
+        }
+        ).catch(error => {
+            newCommentObj.state = 'fail';
+            setEditedTask(updatedTask);
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+
+
+        onUpdateTask(updatedTask);
+        setNewComment('');
     }
   };
 
@@ -176,9 +243,9 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
                 {task.comments.map((comment, index) => (
                   <li
                     key={index}
-                    style={{ marginBottom: '8px', borderLeft: `4px solid ${getBorderColor()}`, paddingLeft: '8px' }}
+                    style={{ marginBottom: '8px', borderLeft: `4px solid ${comment.state === 'sent'? getBorderColor() : 'gray'}`, paddingLeft: '8px' }}
                   >
-                    {comment}
+                    <strong>{comment.author}</strong>: {comment.content}
                   </li>
                 ))}
               </ul>

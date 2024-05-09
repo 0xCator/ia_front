@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Grid } from '@mui/material';
 import { DragDropContext } from 'react-beautiful-dnd';
-import TaskView from './TaskView/TaskView';
-import { useParams } from 'react-router-dom';
-import Column from './ProjectColumn/PrjectColumn';
-import NavBar from './NavBar/NavBar'; // Import the NavBar component
+import TaskView from './TaskView/TaskView'; import { useParams } from 'react-router-dom'; import Column from './ProjectColumn/PrjectColumn'; import NavBar from './NavBar/NavBar'; // Import the NavBar component
 import { projectTaskApi} from '../../../Services/constants';
 import { projectUpdateTaskStateApi } from '../../../Services/constants';
 import { projectApi } from '../../../Services/constants';
@@ -27,6 +24,13 @@ export interface Project {
     teamLeaderId:number;
 }
 
+export interface Comment {
+    content?: string;
+    author?: string;
+    state: 'sent' | 'load' | 'fail' | null;
+    color?: string;
+}
+
 export interface Task {
   taskid: number;
   title: string;
@@ -34,7 +38,7 @@ export interface Task {
   developerId: number;
   description: string;
   state: 'to-do' | 'doing' | 'done';
-  comments: string[];
+  comments: Comment[];
   draggable: boolean;
 }
 
@@ -149,7 +153,11 @@ const ProjectView = () => {
                 }
                 ).then(data => {
                     const comments = data.map((comment: any) => {
-                        return comment.content;
+                        return {
+                            content: comment.content,
+                            author: comment.commenterInfo.name,
+                            state: 'sent',
+                        }
                     });
                     element.comments = comments;
                 }).catch(error => {
@@ -319,26 +327,6 @@ const ProjectView = () => {
             }
             return;
         }).catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
-        });
-
-        fetch(`${addTaskCommentApi}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-            },
-            body: JSON.stringify({content: task.comments[task.comments.length - 1],
-            taskid: task.taskid,
-            userid: user.nameid,
-            parentcommentid: null})
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        }
-        ).catch(error => {
             console.error('There has been a problem with your fetch operation:', error);
         });
 
