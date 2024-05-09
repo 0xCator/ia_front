@@ -3,6 +3,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import TaskCards from '../TaskCards/TaskCards';
 import { Task } from '../ProjectView';
 import { Box, Paper, Typography } from '@mui/material'; // Import Material-UI components
+import { User, getUserData } from '../../../../Services/userData';
 
 interface ColumnProps {
   title: string;
@@ -12,6 +13,7 @@ interface ColumnProps {
 }
 
 const Column: React.FC<ColumnProps> = ({ title, tasks, onClick, icon }) => {
+    const user: User = getUserData()!.user;
   return (
     <Box p={2} width={300}>
       <Paper elevation={3}>
@@ -25,12 +27,13 @@ const Column: React.FC<ColumnProps> = ({ title, tasks, onClick, icon }) => {
           {(provided, snapshot) => (
             <Box ref={provided.innerRef} {...provided.droppableProps} p={2}>
               {tasks.map((task, index) => (
-                <Draggable key={task.taskid} draggableId={task.taskid.toString()} index={index}>
+                <Draggable key={task.taskid} draggableId={task.taskid.toString()} index={index} 
+                isDragDisabled={!task.draggable} >
                   {(provided, snapshot) => (
                     <Box
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      {...provided.dragHandleProps}
+                      {...(provided.dragHandleProps)}
                       mb={2}
                     >
                       <TaskCards task={task} onClick={onClick} />

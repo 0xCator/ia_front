@@ -35,6 +35,7 @@ export interface Task {
   description: string;
   state: 'to-do' | 'doing' | 'done';
   comments: string[];
+  draggable: boolean;
 }
 
 const ProjectView = () => {
@@ -156,10 +157,11 @@ const ProjectView = () => {
                 });
             });
 
+            for (let i = 0; i < tasks.length; i++) {
+                tasks[i].draggable = Number(tasks[i].developerId) === Number(user.nameid);
+            }
                 
-            setTodoTasks(tasks.filter((task: Task) => task.state === 'to-do'));
-            setDoingTasks(tasks.filter((task: Task) => task.state === 'doing'));
-            setDoneTasks(tasks.filter((task: Task) => task.state === 'done'));
+            updateTasks(tasks);
             
         }).catch(error => {
             console.error('There has been a problem with your fetch operation:', error);
@@ -173,10 +175,18 @@ const ProjectView = () => {
   }, []);
 
     const updateTasks = (tasks: Task[]) => {
+
+        const customSort = (a: Task, b: Task) => {
+            if(Number(a.developerId) === Number(user.nameid)) return -1;
+            if(Number(b.developerId) === Number(user.nameid)) return 1;
+            return 0;
+        }
+
+
         setTasks(tasks);
-        setTodoTasks(tasks.filter((task: Task) => task.state === 'to-do'));
-        setDoingTasks(tasks.filter((task: Task) => task.state === 'doing'));
-        setDoneTasks(tasks.filter((task: Task) => task.state === 'done'));
+        setTodoTasks(tasks.filter((task: Task) => task.state === 'to-do').sort(customSort));
+        setDoingTasks(tasks.filter((task: Task) => task.state === 'doing').sort(customSort));
+        setDoneTasks(tasks.filter((task: Task) => task.state === 'done').sort(customSort));
     }
     const onAddTask = () => {
         getTaskData();
@@ -333,6 +343,7 @@ const ProjectView = () => {
         });
 
         newTasks[index] = task;
+
         updateTasks(newTasks);
     };
 
@@ -354,8 +365,6 @@ const ProjectView = () => {
         }).catch(error => {
             console.error('There has been a problem with your fetch operation:', error);
         });
-
-
  }
 
   return (

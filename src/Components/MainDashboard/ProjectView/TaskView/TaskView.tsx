@@ -52,6 +52,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
       comments: editedTask.comments,
       taskid: editedTask.taskid,
       developerName: developers?.find((developer) => developer.id === Number(selectedDeveloper))?.name || '',
+      draggable: editedTask.draggable,
     };
     onUpdateTask(updatedTask);
     setEditing(false);
