@@ -17,8 +17,9 @@ import SaveIcon from '@mui/icons-material/Save';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import { User, getUserData } from '../../../../Services/userData';
-import { addTaskCommentApi, taskUplaodAttachment, taskDwonloadattachment } from '../../../../Services/constants';
+import { addTaskCommentApi, taskUplaodAttachment, taskDwonloadattachment, taskGetAttachmentName } from '../../../../Services/constants';
 import { useEffect } from 'react';
+
 
 interface TaskViewProps {
   task: Task;
@@ -26,9 +27,10 @@ interface TaskViewProps {
   onUpdateTask: (updatedTask: Task) => void;
   onDeleteTask: (taskId: number) => void;
   developers: Developer[] | undefined;
+  showAlert : (t: 'error'| 'info') => void;
 }
 
-const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, developers, onDeleteTask }) => {
+const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, developers, onDeleteTask, showAlert }) => {
   const [newComment, setNewComment] = useState<string>('');
   const [editing, setEditing] = useState<boolean>(false);
   const [editedTask, setEditedTask] = useState<Task>(task);
@@ -52,7 +54,25 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
     };
 
     updateCommentColors();
-  }, [task.comments]);
+
+         fetch(`${taskGetAttachmentName}${task.taskid}/attachmentname`,{
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+              }
+          }).then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.text();
+          }).then(data => {
+              task.attachment = data;
+          }).catch(error => {
+              console.error('There has been a problem with your fetch operation:', error);
+          });
+
+  }, [task.comments, task.taskid, task.attachment]);
 
  const handleDownloadAttachment = () => {
      fetch(`${taskDwonloadattachment}/${task.taskid}/attachmentfile`, {
@@ -199,6 +219,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
+                showAlert('info');
                 return response.json();
             }
             ).catch(error => {

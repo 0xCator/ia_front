@@ -64,20 +64,23 @@ const ProjectView = () => {
   const user: User = getUserData()!.user;
   const [state, setState] = useState(initialState);
   const { lastMessage } = useSocket()!;
+  const [alert, setAlert] = useState<'error'| 'info'>('info');
 
   useEffect(() => {
     if (lastMessage !== null) {
         if (lastMessage.data === "Task has been updated") {
-            getTaskData();
+            getTaskData(false);
         }
     }
 }, [lastMessage]);
 
- const showAlert = () => {
+ const showAlert = (t: 'error'| 'info') => {
     setState(prevState => ({
       ...prevState,
       showAlert: true,
     }));
+    setAlert(t);
+    console.log(alert);
 
     // Automatically close the alert after 3 seconds
     setTimeout(() => {
@@ -162,12 +165,19 @@ const ProjectView = () => {
     });
   }
 
-  const getTaskData = () => {
+  const getTaskData = (withLoading: boolean) => {
     // Set loading to true when fetching task data
-    setState(prevState => ({
-      ...prevState,
-      loading: true,
-    }));
+    if(withLoading){
+        setState(prevState => ({
+                    ...prevState,
+                    loading: true,
+                    }));
+    }else{
+        setState(prevState => ({
+                    ...prevState,
+                    loading: false,
+                    }));
+    }
 
     fetch(`${projectTaskApi}${projectId}`,{
       method: 'GET',
@@ -219,22 +229,6 @@ const ProjectView = () => {
               console.error('There has been a problem with your fetch operation:', error);
           });
 
-          fetch(`${taskGetAttachmentName}${element.taskid}/attachmentname`,{
-              method: 'GET',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-              }
-          }).then(response => {
-              if (!response.ok) {
-                  throw new Error('Network response was not ok');
-              }
-              return response.text();
-          }).then(data => {
-              element.attachment = data;
-          }).catch(error => {
-              console.error('There has been a problem with your fetch operation:', error);
-          });
       });
 
       for (let i = 0; i < tasks.length; i++) {
@@ -242,12 +236,14 @@ const ProjectView = () => {
       }
           
       updateTasks(tasks);
-      
-      // Set loading to false after fetching task data
-      setState(prevState => ({
-        ...prevState,
-        loading: false,
-      }));
+        
+    if(withLoading){
+        setState(prevState => ({
+                    ...prevState,
+                    loading: false,
+                    }));
+    }
+
     }).catch(error => {
       console.error('There has been a problem with your fetch operation:', error);
     });
@@ -255,7 +251,7 @@ const ProjectView = () => {
 
   useEffect(() => {
     getProjectData();
-    getTaskData();
+    getTaskData(true);
   }, []);
 
     const updateTasks = (tasks: Task[]) => {
@@ -273,7 +269,7 @@ const ProjectView = () => {
         setDoneTasks(tasks.filter((task: Task) => task.state === 'done').sort(customSort));
     }
     const onAddTask = () => {
-        getTaskData();
+        getTaskData(true);
         updateTasks(tasks);
     }
 
@@ -368,7 +364,7 @@ const ProjectView = () => {
     } else if (destination.droppableId === 'done') {
       const task = tasks.find(task => task.taskid === parseInt(draggableId))!;
       if(task && !task.attachment){
-        showAlert();
+        showAlert('error');
         return;
       }
       dn.splice(destination.index, 0, tasks.find(task => task.taskid === parseInt(draggableId))!);
@@ -465,15 +461,17 @@ const ProjectView = () => {
           onClose={() => setSelectedTaskId(null)} onUpdateTask={handleTaskUpdate}
           developers={project?.developers}
           onDeleteTask={handleTaskDelete}
+          showAlert={showAlert}
         />
       )}
       {state.showAlert && (
        <Alert 
-        severity="error" 
+        severity={alert}
         onClose={handleCloseAlert} 
         sx={{ position: 'fixed', bottom: 20, right: 20 }}
       >
-        Please upload an attachment before marking the task as "done".
+        {alert === 'error' ? 'Task has been moved to "Done" column. Please upload an attachment before marking the task as "done".' :
+        'Attachment has been uploaded successfully.'} 
       </Alert>
       )}
     </>
