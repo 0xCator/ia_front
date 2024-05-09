@@ -229,6 +229,23 @@ const ProjectView = () => {
               console.error('There has been a problem with your fetch operation:', error);
           });
 
+         fetch(`${taskGetAttachmentName}${element.taskid}/attachmentname`,{
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+              }
+          }).then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.text();
+          }).then(data => {
+              element.attachment = data;
+          }).catch(error => {
+              console.error('There has been a problem with your fetch operation:', error);
+          });
+
       });
 
       for (let i = 0; i < tasks.length; i++) {
