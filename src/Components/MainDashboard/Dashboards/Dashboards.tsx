@@ -8,6 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { acceptRequestPath, projectsPath, rejectRequestPath } from '../../../Services/constants';
 import { getUserData } from '../../../Services/userData';
 import { useSocket } from '../../../Socket/SocketProvider';
+import NavBar from './NavBar/NavBar';
 
     interface Project {
         id: number;
@@ -114,6 +115,7 @@ import { useSocket } from '../../../Socket/SocketProvider';
 
 return (
         <>
+            <NavBar />
             <Container sx={{bgcolor:'white', mt:2}}>
                 <Box sx={{mb:4}}>
                     <Typography variant="h2" align="center">Projects Dashboard</Typography>
