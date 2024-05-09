@@ -10,6 +10,7 @@ import { taskGetAttachmentName, projectUpdateTaskApi, projectDeleteTaskApi} from
 import { CheckCircleOutline, AlarmOn, DoneAll } from '@mui/icons-material'; // Import the icons
 import { useNavigate } from 'react-router-dom';
 import { getUserData, User} from '../../../Services/userData';
+import { useSocket } from '../../../Socket/SocketProvider';
 
 
 const initialState = {
@@ -62,6 +63,15 @@ const ProjectView = () => {
   const navigate = useNavigate();
   const user: User = getUserData()!.user;
   const [state, setState] = useState(initialState);
+  const { lastMessage } = useSocket()!;
+
+  useEffect(() => {
+    if (lastMessage !== null) {
+        if (lastMessage.data === "Task has been updated") {
+            getTaskData();
+        }
+    }
+}, [lastMessage]);
 
  const showAlert = () => {
     setState(prevState => ({
@@ -200,7 +210,7 @@ const ProjectView = () => {
               const comments = data.map((comment: any) => {
                   return {
                       content: comment.content,
-                      author: comment.commenterInfo.name,
+                      author: comment.commenterInfo.username,
                       state: 'sent',
                   }
               });
