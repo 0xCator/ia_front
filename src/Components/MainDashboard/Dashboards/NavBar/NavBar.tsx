@@ -22,7 +22,7 @@ function NavBar() {
                 <Typography variant="h5" fontFamily="fantasy" component="div" sx={{ flexGrow: 1 }}>
                     IKANBANI
                 </Typography>
-                <Typography variant="h6" fontFamily="sans-serif" component="div" sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     Welcome, {getUserData()?.user.unique_name}!
                 </Typography>
                 <Button color="inherit" startIcon={<LogoutIcon />} onClick={logout}></Button>

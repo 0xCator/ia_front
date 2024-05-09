@@ -74,6 +74,16 @@ import NavBar from './NavBar/NavBar';
             fetchProjects();
         }
 
+        const handleUpdateProject = async (id: number, newName: string) => {
+            const updatedProjects = ledProjects.map(project => {
+                if (project.id === id) {
+                    project.name = newName;
+                }
+                return project;
+            })
+            setLedProjects(updatedProjects);
+        }
+
         const handleAssignProject = async (projectID: number, projectName: string) => {
             try {
                 // Make POST request to backend API to assign project
@@ -187,7 +197,8 @@ return (
                 </Grid>
              
             {showAddProjectForm && (<ProjectCreationForm onAddProject={handleAddProject} onCancel={() => setShowAddProjectForm(false)} />)}
-            {showProjectSettings && (<ProjectSettings projectID={selectedProject} projectName={selectedProjectName} onClose={handleCloseProjectSettings} />)}
+            {showProjectSettings && (<ProjectSettings projectID={selectedProject} projectName={selectedProjectName} 
+            onClose={handleCloseProjectSettings} onDelete={fetchProjects} onUpdate={handleUpdateProject} />)}
             </Container>
         </>
     );

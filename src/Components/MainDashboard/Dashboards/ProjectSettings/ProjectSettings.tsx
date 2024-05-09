@@ -21,6 +21,8 @@ interface ProjectSettingsProps {
     projectID: number;
     projectName: string;
     onClose: () => void; // Callback to close the settings
+    onDelete: () => void; // Callback to delete the project
+    onUpdate: (id: number, newName: string) => void; // Callback to update the project name
 }
 
 interface Developer {
@@ -29,7 +31,7 @@ interface Developer {
     username: string;
 }
 
-const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectName, onClose }) => {
+const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectName, onClose, onDelete, onUpdate }) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [developers, setDevelopers] = useState<Developer[]>([]);
     const [newDeveloper, setNewDeveloper] = useState<string>('');
@@ -108,7 +110,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
     }
 
     const handleEditProject = async () => {
-        if (newProjectName.trim() === '' || !newProjectName) {
+        if (newProjectName.trim() === '' || !newProjectName || newProjectName === projectName) {
             return;
         }
 
@@ -125,6 +127,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
             if (!response.ok) {
                 throw new Error('Failed to change project name');
             }
+            onUpdate(projectID, newProjectName);
             setEditing(false);
         } catch (error) {
             console.error('Error changing name:', error);
@@ -147,6 +150,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
                 throw new Error('Failed to change project name');
             }
 
+            onDelete();
             onClose();
         } catch (error) {
             console.error('Error deleting project')
