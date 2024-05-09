@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Alert, Container, Grid } from '@mui/material';
+import { Alert, Container, Grid, Skeleton } from '@mui/material';
 import { DragDropContext } from 'react-beautiful-dnd';
 import TaskView from './TaskView/TaskView'; import { useParams } from 'react-router-dom'; import Column from './ProjectColumn/PrjectColumn'; import NavBar from './NavBar/NavBar'; // Import the NavBar component
 import { projectTaskApi} from '../../../Services/constants';
@@ -15,6 +15,7 @@ import { getUserData, User} from '../../../Services/userData';
 const initialState = {
   attachmentUploaded: false,
   showAlert: false,
+  loading: true,
 };
 
 export interface Developer {
@@ -106,122 +107,141 @@ const ProjectView = () => {
                 return 0;
         }
     }
-    const getProjectData = () => {
-      fetch(`${projectApi}${projectId}`,{
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-        }}).then(response => {
-        if(response.status === 404) {
-            navigate('/dashboard');
-        }
+  const getProjectData = () => {
+    // Set loading to true when fetching project data
+    setState(prevState => ({
+      ...prevState,
+      loading: true,
+    }));
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-        }).then(data => {
-            const project = {
-                projectId: data.id,
-                projectName: data.name,
-                developers: data.assignedDevelopers,
-                teamLeaderId: data.teamLeaderId,
-            };
-            if(user.nameid != project.teamLeaderId && project.developers.findIndex((dev: Developer) => dev.id == user.nameid) === -1) {
-                navigate('/dashboard');
-                return;
-            }
-            setProject(project);
-        }).catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
-        });
-        }
+    fetch(`${projectApi}${projectId}`,{
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+      }
+    }).then(response => {
+      if(response.status === 404) {
+          navigate('/dashboard');
+      }
 
-    const getTaskData = () => {
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+      return response.json();
+    }).then(data => {
+      const project = {
+          projectId: data.id,
+          projectName: data.name,
+          developers: data.assignedDevelopers,
+          teamLeaderId: data.teamLeaderId,
+      };
+      if(user.nameid != project.teamLeaderId && project.developers.findIndex((dev: Developer) => dev.id == user.nameid) === -1) {
+          navigate('/dashboard');
+          return;
+      }
+      setProject(project);
+
+      // Set loading to false after fetching project data
+      setState(prevState => ({
+        ...prevState,
+        loading: false,
+      }));
+    }).catch(error => {
+      console.error('There has been a problem with your fetch operation:', error);
+    });
+  }
+
+  const getTaskData = () => {
+    // Set loading to true when fetching task data
+    setState(prevState => ({
+      ...prevState,
+      loading: true,
+    }));
+
     fetch(`${projectTaskApi}${projectId}`,{
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-        }})
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-        }).then(data => {
-            const tasks = data.map((task: any) => {
-                return {
-                    taskid: task.id,
-                    title: task.name,
-                    developerName: task.assignedDev.name,
-                    developerId: task.assignedDev.id,
-                    description: task.description,
-                    state: statusIntToString(task.status),
-                    comments: []
-                }
-            });
-            setTasks(tasks);
-            
-            tasks.forEach((element: Task) => {
-                fetch(`${getTaskCommentApi}${element.taskid}`,{
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('userData')} `,
-                    }
-                    }) 
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                }
-                ).then(data => {
-                    const comments = data.map((comment: any) => {
-                        return {
-                            content: comment.content,
-                            author: comment.commenterInfo.name,
-                            state: 'sent',
-                        }
-                    });
-                    element.comments = comments;
-                }).catch(error => {
-                    console.error('There has been a problem with your fetch operation:', error);
-                });
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+      }
+    }).then(response => {
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+      return response.json();
+    }).then(data => {
+      const tasks = data.map((task: any) => {
+          return {
+              taskid: task.id,
+              title: task.name,
+              developerName: task.assignedDev.name,
+              developerId: task.assignedDev.id,
+              description: task.description,
+              state: statusIntToString(task.status),
+              comments: []
+          }
+      });
+      setTasks(tasks);
+      
+      tasks.forEach((element: Task) => {
+          fetch(`${getTaskCommentApi}${element.taskid}`,{
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('userData')} `,
+              }
+          }).then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.json();
+          }).then(data => {
+              const comments = data.map((comment: any) => {
+                  return {
+                      content: comment.content,
+                      author: comment.commenterInfo.name,
+                      state: 'sent',
+                  }
+              });
+              element.comments = comments;
+          }).catch(error => {
+              console.error('There has been a problem with your fetch operation:', error);
+          });
 
-                fetch(`${taskGetAttachmentName}${element.taskid}/attachmentname`,{
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-                        }
-                    }).then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.text();
-                    }).then(data => {
-                        element.attachment = data;
-                    }).catch(error => {
-                        console.error('There has been a problem with your fetch operation:', error);
-                    });
+          fetch(`${taskGetAttachmentName}${element.taskid}/attachmentname`,{
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+              }
+          }).then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.text();
+          }).then(data => {
+              element.attachment = data;
+          }).catch(error => {
+              console.error('There has been a problem with your fetch operation:', error);
+          });
+      });
 
-
-            });
-
-            for (let i = 0; i < tasks.length; i++) {
-                tasks[i].draggable = Number(tasks[i].developerId) === Number(user.nameid);
-            }
-                
-            updateTasks(tasks);
-            
-        }).catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
-        });
-
-    }
+      for (let i = 0; i < tasks.length; i++) {
+          tasks[i].draggable = Number(tasks[i].developerId) === Number(user.nameid);
+      }
+          
+      updateTasks(tasks);
+      
+      // Set loading to false after fetching task data
+      setState(prevState => ({
+        ...prevState,
+        loading: false,
+      }));
+    }).catch(error => {
+      console.error('There has been a problem with your fetch operation:', error);
+    });
+  }
 
   useEffect(() => {
     getProjectData();
@@ -416,13 +436,13 @@ const ProjectView = () => {
             <DragDropContext onDragEnd={onDragEnd}>
               <Grid container spacing={2}>
                 <Grid item xs={4}>
-                  <Column title="To Do" icon={<AlarmOn />} onClick={handleTaskClick} tasks={filteredTasks(todoTasks)} />
+                  <Column title="To Do" icon={<AlarmOn />} onClick={handleTaskClick} tasks={filteredTasks(todoTasks)} loading={state.loading} />
                 </Grid>
                 <Grid item xs={4}>
-                  <Column title="Doing" icon={<CheckCircleOutline />} onClick={handleTaskClick} tasks={filteredTasks(doingTasks)} />
+                  <Column title="Doing" icon={<CheckCircleOutline />} onClick={handleTaskClick} tasks={filteredTasks(doingTasks)} loading={state.loading} />
                 </Grid>
                 <Grid item xs={4}>
-                  <Column title="Done" icon={<DoneAll />} onClick={handleTaskClick} tasks={filteredTasks(doneTasks)} />
+                  <Column title="Done" icon={<DoneAll />} onClick={handleTaskClick} tasks={filteredTasks(doneTasks)} loading={state.loading} />
                 </Grid>
               </Grid>
             </DragDropContext>
