@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import TaskCards from '../TaskCards/TaskCards';
 import { Task } from '../ProjectView';
-import { Box, Paper, Typography } from '@mui/material'; // Import Material-UI components
+import { Box, Paper, Typography, Skeleton } from '@mui/material'; 
 import { User, getUserData } from '../../../../Services/userData';
 
 interface ColumnProps {
@@ -10,10 +10,12 @@ interface ColumnProps {
   tasks: Task[];
   icon: JSX.Element;
   onClick: (taskId: number) => void;
+  loading: boolean;
 }
 
-const Column: React.FC<ColumnProps> = ({ title, tasks, onClick, icon }) => {
-    const user: User = getUserData()!.user;
+const Column: React.FC<ColumnProps> = ({ title, tasks, onClick, icon, loading }) => {
+  const user: User = getUserData()!.user;
+
   return (
     <Box p={2} width={300}>
       <Paper elevation={3}>
@@ -23,28 +25,33 @@ const Column: React.FC<ColumnProps> = ({ title, tasks, onClick, icon }) => {
             {title}
           </Typography>
         </Box>
-        <Droppable droppableId={title.toLowerCase().replace(/\s+/g, '-')}>
-          {(provided, snapshot) => (
-            <Box ref={provided.innerRef} {...provided.droppableProps} p={2}>
-              {tasks.map((task, index) => (
-                <Draggable key={task.taskid} draggableId={task.taskid.toString()} index={index} 
-                isDragDisabled={!task.draggable} >
-                  {(provided, snapshot) => (
-                    <Box
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...(provided.dragHandleProps)}
-                      mb={2}
-                    >
-                      <TaskCards task={task} onClick={onClick} />
-                    </Box>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </Box>
-          )}
-        </Droppable>
+        {loading ? (
+          <Box p={2}>
+            <Skeleton variant="rectangular" width="100%" height={200} />
+          </Box>
+        ) : (
+          <Droppable droppableId={title.toLowerCase().replace(/\s+/g, '-')}>
+            {(provided, snapshot) => (
+              <Box ref={provided.innerRef} {...provided.droppableProps} p={2}>
+                {tasks.map((task, index) => (
+                  <Draggable key={task.taskid} draggableId={task.taskid.toString()} index={index} isDragDisabled={!task.draggable} >
+                    {(provided, snapshot) => (
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...(provided.dragHandleProps)}
+                        mb={2}
+                      >
+                        <TaskCards task={task} onClick={onClick} />
+                      </Box>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </Box>
+            )}
+          </Droppable>
+        )}
       </Paper>
     </Box>
   );
