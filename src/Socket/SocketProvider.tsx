@@ -11,12 +11,13 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const nameid = getUserData()?.user.nameid;
     const socket = useWebSocket(websocketPath(nameid!));
 
+    
     useEffect(() => {
         if (socket.readyState === 1 && !initialized) {
             console.log('Connected to WebSocket, ID is:', nameid);
             setInitialized(true);
         }
-    }, [socket.readyState, nameid, initialized]);
+    }, [nameid, initialized]);
 
     return (
         <WebSocketContext.Provider value={socket}>
