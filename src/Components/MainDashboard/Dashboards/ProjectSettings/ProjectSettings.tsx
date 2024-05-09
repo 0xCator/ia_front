@@ -133,7 +133,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, onClose })
                     required
                     fullWidth
                     id="developer"
-                    label="Developer Name"
+                    label="Developer Username"
                     name="developer"
                     value={newDeveloper}
                     onChange={(e) => setNewDeveloper(e.target.value)}

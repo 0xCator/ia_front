@@ -6,6 +6,7 @@ import LandingPage from "./Components/LandingPage/LandingPage";
 import Dashboards  from "./Components/MainDashboard/Dashboards/Dashboards";
 import ProjectView  from "./Components/MainDashboard/ProjectView/ProjectView";
 import { AuthGuard } from "./Guard/auth-guard";
+import { SocketManager } from "./Socket/SocketManager";
 
  
 
@@ -37,12 +38,17 @@ export const router = createBrowserRouter([
                 element: <AuthGuard logRequired={true}/>,
                 children: [
                     {
-                        path: "/dashboard", // localhost:3000/dashboard
-                        element: <Dashboards />
-                    },
-                    {
-                        path: "/project/:projectId", // localhost:3000/project/1
-                        element: <ProjectView />
+                        element: <SocketManager/>,
+                        children: [
+                            {
+                                path: "/dashboard", // localhost:3000/dashboard
+                                element: <Dashboards />
+                            },
+                            {
+                                path: "/project/:projectId", // localhost:3000/project/1
+                                element: <ProjectView />
+                            }
+                        ]
                     }
                 ]
             },

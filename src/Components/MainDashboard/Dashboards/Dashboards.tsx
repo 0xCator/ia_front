@@ -7,6 +7,7 @@ import Skeleton from '@mui/material/Skeleton';
 import AddIcon from '@mui/icons-material/Add';
 import { acceptRequestPath, projectsPath, rejectRequestPath } from '../../../Services/constants';
 import { getUserData } from '../../../Services/userData';
+import { useSocket } from '../../../Socket/SocketProvider';
 
     interface Project {
         id: number;
@@ -18,14 +19,24 @@ import { getUserData } from '../../../Services/userData';
         const [ledProjects, setLedProjects] = useState<Project[]>([]);
         const [assignedProjects, setAssignedProjects] = useState<Project[]>([]);
         const [requestProjects, setRequestProjects] = useState<Project[]>([]);
+        const [allProjects, setAllProjects] = useState<any>([]);
         const [showAddProjectForm, setShowAddProjectForm] = useState<boolean>(false);
         const [showProjectSettings, setShowProjectSettings] = useState<boolean>(false);
         const [selectedProject, setSelectedProject] = useState<number>(-1);
         const [loading, setLoading] = useState<boolean>(true);
+        const { lastMessage } = useSocket()!;
+
+        useEffect(() => {
+            if (lastMessage !== null) {
+                if (lastMessage.data === "Project has been updated") {
+                    fetchProjects();
+                }
+            }
+        }, [lastMessage]);
 
         useEffect(() => {
             fetchProjects();
-        }, []);
+        }, [allProjects]);
 
         const fetchProjects = async () => {
             setLoading(true);
