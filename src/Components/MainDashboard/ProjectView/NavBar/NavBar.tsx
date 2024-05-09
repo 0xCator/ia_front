@@ -5,6 +5,7 @@ import TaskCreationForm from '../TaskCreationForm/TaskCreationForm';
 import { Task, Project } from '../ProjectView';
 import { Box } from '@mui/material';
 import { getUserData, User } from '../../../../Services/userData';
+import { useNavigate } from 'react-router-dom';
 
 interface NavBarProps {
   projectName: string | undefined;
@@ -36,6 +37,7 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project, onAddTa
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [openAddTaskDialog, setOpenAddTaskDialog] = useState<boolean>(false);
   const userData: User = getUserData()!.user;
+  const navigate = useNavigate();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -56,11 +58,9 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project, onAddTa
       <AppBar position="fixed" sx={{ padding: 1 / 2 }}>
         <Toolbar sx={{ justifyContent: "space-between" }}>
           <Box style={{ display: 'flex', alignItems: 'center' }}>
-            <Link href="/dashboard" color="inherit">
-              <IconButton color="inherit">
+              <IconButton onClick={()=>navigate("/dashboard")} color="inherit">
                 <ArrowBackIcon />
               </IconButton>
-            </Link>
             <Typography variant="h5" component="div" sx={{ml:2}}>
               {projectName}
             </Typography>
