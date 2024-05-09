@@ -7,15 +7,26 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import { Task } from '../ProjectView';
 import { Typography } from '@mui/material';
+import { Developer } from '../ProjectView';
+import Select, { SelectChangeEvent } from '@mui/material/Select'; 
+import MenuItem from '@mui/material/MenuItem'; 
+import { User, getUserData } from '../../../../Services/userData';
+
 
 interface TaskViewProps {
   task: Task;
   onClose: () => void;
   onUpdateTask: (updatedTask: Task) => void;
+  developers: Developer[] | undefined;
 }
 
-const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask }) => {
+const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, developers }) => {
   const [newComment, setNewComment] = useState<string>('');
+  const [editing, setEditing] = useState<boolean>(false);
+  const [editedTask, setEditedTask] = useState<Task>(task);
+  const [selectedDeveloper, setSelectedDeveloper] = useState<string >(task.developerId.toString());
+  const userData: User = getUserData()!.user;
+
 
   const handleAddComment = () => {
     if (newComment.trim() !== '') {
@@ -24,6 +35,32 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask }) => {
       setNewComment('');
     }
   }
+
+   const handleEditClick = () => {
+    setEditing(true);
+  };
+
+   const handleSaveClick = () => {
+    const updatedTask: Task = {
+        title: editedTask.title,
+        description: editedTask.description,
+        state: editedTask.state,
+        developerId: Number(selectedDeveloper),
+        comments: editedTask.comments,
+        taskid: editedTask.taskid,
+        developerName: developers?.find((developer) => developer.id === Number(selectedDeveloper))?.name || '',
+        };
+    onUpdateTask(updatedTask);
+    setEditing(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEditedTask(prevState => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
   const getBorderColor = () => {
     switch (task.state) {
@@ -37,20 +74,70 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask }) => {
         return '#000'; // Default black
     }
   };
+  const handleDeveloperChange = (e: SelectChangeEvent) => {
+    setSelectedDeveloper(e.target.value);
+  };
+
 
   return (
     <Dialog open onClose={onClose} PaperProps={{ style: { border: `2px solid ${getBorderColor()}`, minWidth: '600px', minHeight: '400px' } }}>
       <DialogTitle style={{ backgroundColor: `${getBorderColor()}`, borderBottom: `2px solid ${getBorderColor()}` }}>
-       #{task.taskid} {task.title}
+        {editing ? (
+          <>
+            <TextField
+              label="Title"
+              name="title"
+              value={editedTask.title}
+              onChange={handleInputChange}
+            />
+            <Button onClick={handleSaveClick}>Save</Button>
+          </>
+        ) : (
+          <>
+            #{task.taskid} {task.title}
+            {userData.role === 'TeamLeader' && <Button onClick={handleEditClick}>Edit</Button>}
+          </>
+        )}
       </DialogTitle>
       <DialogContent dividers>
-        <Typography style={{ marginBottom: '16px' }}>
-          <strong>Developer:</strong> {task.developerName}
-        </Typography>
-        <Typography style={{ marginBottom: '16px' }}>
-          <strong>Description:</strong>
-          <div style={{ marginTop: '8px', border: '1px solid #ccc', padding: '8px', borderRadius: '4px' }}>{task.description}</div>
-        </Typography >
+      {editing && (
+      <Typography style={{ marginBottom: '16px' }}>
+       <strong>Developer:</strong>
+            <Select value={selectedDeveloper} onChange={handleDeveloperChange}
+              sx={{ width: '100%' }} 
+            > 
+              {developers && developers.map((developer) => (
+                <MenuItem key={developer.id} value={developer.id}>
+                  {developer.name}
+                </MenuItem>
+              ))}
+            </Select>
+            </Typography>
+            )}
+        {editing && (
+          <TextField
+            label="Description"
+            name="description"
+            value={editedTask.description}
+            onChange={handleInputChange}
+            fullWidth
+            multiline
+            rows={4}
+          />
+        )}
+        {!editing && (
+          <Typography style={{ marginBottom: '16px' }}>
+            <strong>Developer:</strong> {task.developerName}
+          </Typography>
+        )}
+        {!editing && (
+          <Typography style={{ marginBottom: '16px' }}>
+            <strong>Description:</strong>
+            <div style={{ marginTop: '8px', border: '1px solid #ccc', padding: '8px', borderRadius: '4px' }}>{task.description}</div>
+          </Typography>
+        )}
+        {!editing && (
+        <>
         <Typography style={{ marginBottom: '16px' }}>
           <strong>Comments:</strong>
           <ul style={{ paddingLeft: '20px', marginTop: '8px', listStyleType: 'none' }}>
@@ -59,20 +146,22 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask }) => {
             ))}
           </ul>
         </Typography>
-
-        <TextField
-          label="Add a comment"
-          variant="outlined"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          fullWidth
-        />
+          <TextField
+            label="Add a comment"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            fullWidth
+          />
+          </>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Close</Button>
-        <Button onClick={handleAddComment} variant="contained" color="primary">
-          Add Comment
-        </Button>
+        {!editing && (
+          <Button onClick={handleAddComment} variant="contained" color="primary">
+            Add Comment
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

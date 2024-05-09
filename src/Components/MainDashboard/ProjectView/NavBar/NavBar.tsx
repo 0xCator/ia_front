@@ -4,6 +4,7 @@ import { Search as SearchIcon, Add as AddIcon } from '@mui/icons-material';
 import TaskCreationForm from '../TaskCreationForm/TaskCreationForm';
 import {Task, Project} from '../ProjectView';
 import { Box } from '@mui/material';
+import { getUserData, User} from '../../../../Services/userData';
 
 interface NavBarProps {
   projectName: string | undefined;
@@ -34,6 +35,7 @@ const StyledTextField = styled(TextField)({
 const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project, onAddTask}) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [openAddTaskDialog, setOpenAddTaskDialog] = useState<boolean>(false);
+  const userData: User = getUserData()!.user;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -70,6 +72,9 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project, onAddTa
             variant="outlined"
           />
         </Box>
+        <Box>
+        {userData.role === 'TeamLeader' && (
+        <>
         <IconButton color="inherit" onClick={handleAddTaskClick}>
           <AddIcon />
         </IconButton>
@@ -78,6 +83,9 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project, onAddTa
             <TaskCreationForm onCancel={handleCloseAddTaskDialog} developers={project?.developers} onAddTask={onAddTask} projectId={project?.projectId} />
           </DialogContent>
         </Dialog>
+        </>
+        )}
+        </Box>
       </Toolbar>
     </AppBar>
     </Box>

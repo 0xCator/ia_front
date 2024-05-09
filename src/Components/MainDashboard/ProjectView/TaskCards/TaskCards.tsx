@@ -34,7 +34,7 @@ const TaskCards: React.FC<TaskCardProps> = ({ task, onClick }) => {
     >
       <CardContent style={{ backgroundColor: '#fff' }}>
         <Typography variant="h5" component="div">
-          {task.title}
+            #{task.taskid} {task.title}
         </Typography>
         <Typography color="text.secondary" gutterBottom>
           {task.developerName}

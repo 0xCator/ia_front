@@ -9,7 +9,7 @@ import { projectTaskApi} from '../../../Services/constants';
 import { projectUpdateTaskStateApi } from '../../../Services/constants';
 import { projectApi } from '../../../Services/constants';
 import { getTaskCommentApi } from '../../../Services/constants';
-import { addTaskCommentApi } from '../../../Services/constants';
+import { addTaskCommentApi, projectUpdateTaskApi} from '../../../Services/constants';
 import { CheckCircleOutline, AlarmOn, DoneAll } from '@mui/icons-material'; // Import the icons
 import { useNavigate } from 'react-router-dom';
 import { getUserData, User} from '../../../Services/userData';
@@ -31,6 +31,7 @@ export interface Task {
   taskid: number;
   title: string;
   developerName: string;
+  developerId: number;
   description: string;
   state: 'to-do' | 'doing' | 'done';
   comments: string[];
@@ -123,6 +124,7 @@ const ProjectView = () => {
                     taskid: task.id,
                     title: task.name,
                     developerName: task.assignedDev.name,
+                    developerId: task.assignedDev.id,
                     description: task.description,
                     state: statusIntToString(task.status),
                     comments: []
@@ -170,12 +172,15 @@ const ProjectView = () => {
     getTaskData();
   }, []);
 
-    const onAddTask = () => {
-        getTaskData();
+    const updateTasks = (tasks: Task[]) => {
         setTasks(tasks);
         setTodoTasks(tasks.filter((task: Task) => task.state === 'to-do'));
         setDoingTasks(tasks.filter((task: Task) => task.state === 'doing'));
         setDoneTasks(tasks.filter((task: Task) => task.state === 'done'));
+    }
+    const onAddTask = () => {
+        getTaskData();
+        updateTasks(tasks);
     }
 
     const updateTaskState = (taskId: number, state: string) => { 
@@ -208,7 +213,7 @@ const ProjectView = () => {
     if (!isNaN(Number(searchLowerCase[0]))) {
       return tasks.filter(task => task.taskid.toString().includes(searchLowerCase));
     } else {
-      return tasks.filter(task => task.developerName.toLowerCase().includes(searchLowerCase));
+      return tasks.filter(task => (task.developerName.toLowerCase().includes(searchLowerCase) || task.title.toLowerCase().includes(searchLowerCase)));
     }
   };
 
@@ -285,6 +290,28 @@ const ProjectView = () => {
 
         const newTasks = Array.from(tasks);
 
+       fetch(`${projectUpdateTaskApi}${task.taskid}`,{
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+            },
+            body: JSON.stringify({
+                name: task.title,
+                description: task.description,
+                projectID: projectId,
+                assignedDevID: task.developerId,
+            })
+
+           }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return;
+        }).catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+
         fetch(`${addTaskCommentApi}`, {
             method: 'POST',
             headers: {
@@ -306,7 +333,7 @@ const ProjectView = () => {
         });
 
         newTasks[index] = task;
-        setTasks(newTasks);
+        updateTasks(newTasks);
     };
 
 
@@ -337,6 +364,7 @@ const ProjectView = () => {
         <TaskView
           task={tasks.find(task => task.taskid === selectedTaskId)!}
           onClose={() => setSelectedTaskId(null)} onUpdateTask={handleTaskUpdate}
+          developers={project?.developers}
         />
       )}
     </>
