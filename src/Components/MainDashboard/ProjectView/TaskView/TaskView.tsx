@@ -240,7 +240,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
                 <GetAppIcon />
                 </IconButton>
                 )}
-            {userData.role === 'Developer' && (
+            {userData.role === 'Developer' && Number(userData.nameid) === Number(task.developerId)  && (
             <>
             <input
             accept="image/*,application/pdf"
