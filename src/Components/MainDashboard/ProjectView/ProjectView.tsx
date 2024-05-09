@@ -9,7 +9,7 @@ import { projectTaskApi} from '../../../Services/constants';
 import { projectUpdateTaskStateApi } from '../../../Services/constants';
 import { projectApi } from '../../../Services/constants';
 import { getTaskCommentApi } from '../../../Services/constants';
-import { addTaskCommentApi, projectUpdateTaskApi} from '../../../Services/constants';
+import { addTaskCommentApi, projectUpdateTaskApi, projectDeleteTaskApi} from '../../../Services/constants';
 import { CheckCircleOutline, AlarmOn, DoneAll } from '@mui/icons-material'; // Import the icons
 import { useNavigate } from 'react-router-dom';
 import { getUserData, User} from '../../../Services/userData';
@@ -337,6 +337,26 @@ const ProjectView = () => {
     };
 
 
+ const handleTaskDelete = (taskId: number) => {
+    const newTasks = tasks.filter(task => task.taskid !== taskId);
+
+     fetch(`${projectDeleteTaskApi}${taskId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+        }}).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            updateTasks(newTasks);
+            return;
+        }).catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+
+
+ }
 
   return (
     <> 
@@ -365,6 +385,7 @@ const ProjectView = () => {
           task={tasks.find(task => task.taskid === selectedTaskId)!}
           onClose={() => setSelectedTaskId(null)} onUpdateTask={handleTaskUpdate}
           developers={project?.developers}
+          onDeleteTask={handleTaskDelete}
         />
       )}
     </>
