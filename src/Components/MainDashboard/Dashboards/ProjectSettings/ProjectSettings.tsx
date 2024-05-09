@@ -5,13 +5,21 @@ import React, { useState, useEffect } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import CircularProgress from '@mui/material/CircularProgress';
+import  Grid  from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import { handleDeveloperPath, projectsPath } from '../../../../Services/constants';
 import { getUserData } from '../../../../Services/userData';
+import { projectApi } from '../../../../Services/constants';
 
 interface ProjectSettingsProps {
     projectID: number;
+    projectName: string;
     onClose: () => void; // Callback to close the settings
 }
 
@@ -21,11 +29,13 @@ interface Developer {
     username: string;
 }
 
-const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, onClose }) => {
-    const [loading, setLoading] = useState<boolean>(true);
+const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectName, onClose }) => {
+    const [loading, setLoading] = useState<boolean>(false);
     const [developers, setDevelopers] = useState<Developer[]>([]);
     const [newDeveloper, setNewDeveloper] = useState<string>('');
     const [creationError, setCreationError] = useState<string | null>(null);
+    const [editing, setEditing] = useState<boolean>(false);
+    const [newProjectName, setNewProjectName] = useState<string>(projectName);
 
     useEffect(() => {
         fetchDevelopers();
@@ -33,16 +43,18 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, onClose })
 
     const fetchDevelopers = async () => {
         try {
+            setLoading(true);
             const response = await fetch(projectsPath + `/${projectID}`, {
                 headers: {
                     Authorization: `Bearer ${getUserData()?.token}`
                 }
             });
             const data = await response.json();
-            setLoading(false);
             setDevelopers(data.assignedDevelopers);
         } catch (error) {
             console.error('Error fetching developers:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -95,11 +107,102 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, onClose })
         }
     }
 
+    const handleEditProject = async () => {
+        if (newProjectName.trim() === '' || !newProjectName) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const response = await fetch(projectApi+`${projectID}/${newProjectName}`, {
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${getUserData()?.token}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to change project name');
+            }
+            setEditing(false);
+        } catch (error) {
+            console.error('Error changing name:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleDeleteProject = async () => {
+        try {
+            const response = await fetch(projectApi+`${projectID}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${getUserData()?.token}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to change project name');
+            }
+
+            onClose();
+        } catch (error) {
+            console.error('Error deleting project')
+        }
+    }
+    
     return (
         <Dialog open={true} onClose={onClose} fullWidth maxWidth='sm'>
-            <DialogTitle>Project Settings</DialogTitle>
+            <Grid container xs={12}>
+                {!editing ? (
+                    <>
+                    <Grid item xs={10}> 
+                        <DialogTitle>Project Settings</DialogTitle>
+                    </Grid>
+                    <Grid item xs={2} sx={{padding:1}}>
+                    <IconButton onClick={()=>{setEditing(true);}} color="inherit">
+                            <EditIcon />
+                    </IconButton>
+
+                    <IconButton onClick={handleDeleteProject} color="error">
+                            <DeleteIcon />
+                    </IconButton>
+                    </Grid>
+                    </>
+                ) : (
+                    <>
+                    <Grid item xs={10}> 
+                        <DialogTitle>Editing</DialogTitle>
+                    </Grid>
+                    <Grid item xs={2} sx={{padding:1}}>
+                    {!loading ? (
+                        <>
+                        <IconButton onClick={handleEditProject} color="success">
+                            <CheckIcon />
+                        </IconButton>
+                        <IconButton onClick={()=>{setEditing(false); setNewProjectName(projectName);}} color="error">
+                                <CloseIcon />
+                        </IconButton>
+                        </>
+                    ) : (
+                        <>
+                            <CircularProgress size={24}/>
+                            <IconButton disabled onClick={()=>{setEditing(false); setNewProjectName(projectName);}} color="error">
+                                <CloseIcon />
+                            </IconButton>
+                        </>
+                    )}
+                    </Grid>
+                    </>
+                )}
+            </Grid>
             <DialogContent>
-                <Accordion>
+                {
+                    !editing ? (
+                        <>
+                        <Accordion>
                     <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
                         <Typography>Developers Assigned</Typography>
                     </AccordionSummary>
@@ -128,28 +231,46 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, onClose })
                     </AccordionDetails>
                 </Accordion>
                 
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="developer"
-                    label="Developer Username"
-                    name="developer"
-                    value={newDeveloper}
-                    onChange={(e) => setNewDeveloper(e.target.value)}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton onClick={handleAddDeveloper} edge="end" color="primary">
-                                    <AddIcon />
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-                {creationError && 
-                    <Alert severity="error">{creationError}</Alert>
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="developer"
+                        label="Developer Username"
+                        name="developer"
+                        value={newDeveloper}
+                        onChange={(e) => setNewDeveloper(e.target.value)}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={handleAddDeveloper} edge="end" color="primary">
+                                        <AddIcon />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    {creationError && 
+                        <Alert severity="error">{creationError}</Alert>
+                    }
+                </>
+                    ) : (
+                        <>
+                            <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            id="newtitle"
+                            label="Project Title"
+                            name="newtitle"
+                            value={newProjectName}
+                            onChange={(e) => setNewProjectName(e.target.value)}
+                            disabled={loading}
+                            />
+                        </>
+                    )
                 }
+                
             </DialogContent>
         </Dialog>
     );

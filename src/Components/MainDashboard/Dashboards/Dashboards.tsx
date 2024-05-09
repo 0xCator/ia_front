@@ -23,6 +23,7 @@ import NavBar from './NavBar/NavBar';
         const [allProjects, setAllProjects] = useState<any>([]);
         const [showAddProjectForm, setShowAddProjectForm] = useState<boolean>(false);
         const [showProjectSettings, setShowProjectSettings] = useState<boolean>(false);
+        const [selectedProjectName, setProjectName] = useState<string>('');
         const [selectedProject, setSelectedProject] = useState<number>(-1);
         const [loading, setLoading] = useState<boolean>(true);
         const { lastMessage } = useSocket()!;
@@ -58,9 +59,10 @@ import NavBar from './NavBar/NavBar';
             }
         };
 
-        const handleShowProjectSettings = (projectID: number) => {
+        const handleShowProjectSettings = (projectID: number, projectName: string) => {
             setShowProjectSettings(true);
             setSelectedProject(projectID);
+            setProjectName(projectName);
         };
 
         const handleCloseProjectSettings = () => {
@@ -117,9 +119,9 @@ return (
         <>
             <NavBar />
             <Container sx={{bgcolor:'white', mt:2}}>
-                <Box sx={{mb:4}}>
+                {/* <Box sx={{mb:4}}>
                     <Typography variant="h2" align="center">Projects Dashboard</Typography>
-                </Box>
+                </Box> */}
                 <Grid xs={12} sm={8} md={5} component={Paper} elevation={6} padding={1}>
                     <Grid container sx={{padding:1}}>
                         <Grid xs={11}>
@@ -185,7 +187,7 @@ return (
                 </Grid>
              
             {showAddProjectForm && (<ProjectCreationForm onAddProject={handleAddProject} onCancel={() => setShowAddProjectForm(false)} />)}
-            {showProjectSettings && (<ProjectSettings projectID={selectedProject} onClose={handleCloseProjectSettings} />)}
+            {showProjectSettings && (<ProjectSettings projectID={selectedProject} projectName={selectedProjectName} onClose={handleCloseProjectSettings} />)}
             </Container>
         </>
     );

@@ -18,7 +18,7 @@ interface ProjectCardProps {
     projectID: number;
     projectName: string;
     state: number; // Add state property
-    onShowSettings: (projectID: number) => void;
+    onShowSettings: (projectID: number, projectName: string) => void;
     onAssign: (projectID: number, projectName: string) => void; // Callback function for assigning project
     onDelete: (projectID: number, projectName: string) => void; // Callback function for deleting project
 }
@@ -48,7 +48,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ projectID,projectName, state,
                             </CardContent>
                         </CardActionArea>
                         <CardActions sx={{justifyContent: "right"}}>
-                            <IconButton size="small" color="primary" onClick={() => onShowSettings(projectID)}><ManageAccountsIcon/></IconButton>
+                            <IconButton size="small" color="primary" onClick={() => onShowSettings(projectID, projectName)}><ManageAccountsIcon/></IconButton>
                         </CardActions>
                     </Card>
             );
