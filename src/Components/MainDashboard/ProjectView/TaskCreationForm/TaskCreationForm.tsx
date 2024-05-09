@@ -8,10 +8,11 @@ interface TaskCreationFormProps {
     onCancel: () => void; 
     developers: Developer[] | undefined;
     projectId: number | undefined;
+    onAddTask: () => void;
 }
 
 
-const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel, developers, projectId}) => {
+const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel, developers, projectId, onAddTask}) => {
     const titleRef = useRef<HTMLInputElement>(null); 
     const developerNameRef = useRef<string>(''); 
     const descriptionRef = useRef<HTMLTextAreaElement>(null); 
@@ -37,6 +38,8 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel, developer
             }).catch((error) => {
                 console.error('Error:', error);
             });
+
+            onAddTask();
 
         }
 

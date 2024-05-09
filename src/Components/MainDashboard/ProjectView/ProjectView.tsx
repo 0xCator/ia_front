@@ -168,7 +168,15 @@ const ProjectView = () => {
   useEffect(() => {
     getProjectData();
     getTaskData();
-  }, [projectId, navigate, user.nameid]);
+  }, []);
+
+    const onAddTask = () => {
+        getTaskData();
+        setTasks(tasks);
+        setTodoTasks(tasks.filter((task: Task) => task.state === 'to-do'));
+        setDoingTasks(tasks.filter((task: Task) => task.state === 'doing'));
+        setDoneTasks(tasks.filter((task: Task) => task.state === 'done'));
+    }
 
     const updateTaskState = (taskId: number, state: string) => { 
         fetch(`${projectUpdateTaskStateApi}${taskId}/status?newStatus=${statusStringToInt(state)}`, { 
@@ -305,7 +313,7 @@ const ProjectView = () => {
 
   return (
     <> 
-      <NavBar onSearch={setSearchQuery} projectName={project?.projectName} tasks={tasks} setTasks={setTasks} project={project!}/>  
+      <NavBar onSearch={setSearchQuery} projectName={project?.projectName} tasks={tasks} setTasks={setTasks} project={project!} onAddTask={onAddTask}/>  
       <Container className="container">
         <Grid container spacing={2} sx={{mt:8}}>
           <Grid item xs={12}>

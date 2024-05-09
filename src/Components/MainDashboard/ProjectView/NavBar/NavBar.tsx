@@ -11,6 +11,7 @@ interface NavBarProps {
   onSearch: (query: string) => void;
   tasks: Task[];
   setTasks: (tasks: Task[]) => void;
+  onAddTask: () => void;
 }
 
 const StyledTextField = styled(TextField)({
@@ -30,7 +31,7 @@ const StyledTextField = styled(TextField)({
   },
 });
 
-const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project}) => {
+const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project, onAddTask}) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [openAddTaskDialog, setOpenAddTaskDialog] = useState<boolean>(false);
 
@@ -74,7 +75,7 @@ const NavBar: React.FC<NavBarProps> = ({ projectName, onSearch, project}) => {
         </IconButton>
         <Dialog open={openAddTaskDialog} onClose={handleCloseAddTaskDialog}>
           <DialogContent>
-            <TaskCreationForm onCancel={handleCloseAddTaskDialog} developers={project?.developers} projectId={project?.projectId} />
+            <TaskCreationForm onCancel={handleCloseAddTaskDialog} developers={project?.developers} onAddTask={onAddTask} projectId={project?.projectId} />
           </DialogContent>
         </Dialog>
       </Toolbar>
