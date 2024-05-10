@@ -132,6 +132,7 @@ const ProjectView = () => {
       headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+          'Access-Control-Allow-Origin': '*',
       }
     }).then(response => {
       if(response.status === 404) {
@@ -184,6 +185,7 @@ const ProjectView = () => {
       headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+          'Access-Control-Allow-Origin': '*',
       }
     }).then(response => {
       if (!response.ok) {
@@ -210,6 +212,7 @@ const ProjectView = () => {
               headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${localStorage.getItem('userData')} `,
+                  'Access-Control-Allow-Origin': '*',
               }
           }).then(response => {
               if (!response.ok) {
@@ -234,6 +237,7 @@ const ProjectView = () => {
               headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+                  'Access-Control-Allow-Origin': '*',
               }
           }).then(response => {
               if (!response.ok) {
@@ -296,10 +300,11 @@ const ProjectView = () => {
             headers: { 
                 'Accept': '*/*',
                 'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+                'Access-Control-Allow-Origin': '*',
             },
         }).then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`Network response was not ok ${response.status}`);
             }
             return;
         }).catch(error => {
@@ -408,6 +413,7 @@ const ProjectView = () => {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+                'Access-Control-Allow-Origin': '*',
             },
             body: JSON.stringify({
                 name: task.title,
@@ -439,6 +445,7 @@ const ProjectView = () => {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+            'Access-Control-Allow-Origin': '*',
         }}).then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');

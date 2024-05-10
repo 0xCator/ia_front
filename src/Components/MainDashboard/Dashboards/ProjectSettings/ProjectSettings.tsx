@@ -49,7 +49,8 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
             setLoading(true);
             const response = await fetch(projectsPath + `/${projectID}`, {
                 headers: {
-                    Authorization: `Bearer ${getUserData()?.token}`
+                'Access-Control-Allow-Origin': '*',
+                 Authorization: `Bearer ${getUserData()?.token}`
                 }
             });
             const data = await response.json();
@@ -89,6 +90,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getUserData()?.token}`,
+                    'Access-Control-Allow-Origin': '*',
                     'Content-Type': 'application/json'
                 },
             });
@@ -115,6 +117,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${getUserData()?.token}`,
+                    'Access-Control-Allow-Origin': '*',
                     'Content-Type': 'application/json'
                 },
             });
@@ -138,6 +141,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getUserData()?.token}`,
+                    'Access-Control-Allow-Origin': '*',
                     'Content-Type': 'application/json'
                 },
             });

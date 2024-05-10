@@ -45,6 +45,7 @@ import NavBar from './NavBar/NavBar';
             try {
                 const response = await fetch(projectsPath + '/user/' + getUserData()?.user.nameid, {
                     headers: {
+                        'Access-Control-Allow-Origin': '*',
                         Authorization: `Bearer ${getUserData()?.token}`
                     }
                 });
@@ -91,6 +92,7 @@ import NavBar from './NavBar/NavBar';
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${getUserData()?.token}`,
+                        'Access-Control-Allow-Origin': '*',
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ projectID, UserID: getUserData()?.user.nameid})
@@ -112,6 +114,7 @@ import NavBar from './NavBar/NavBar';
                 await fetch(rejectRequestPath, {
                     headers: {
                         Authorization: `Bearer ${getUserData()?.token}`,
+                        'Access-Control-Allow-Origin': '*',
                         'Content-Type': 'application/json'
                     },
                     method: 'POST',

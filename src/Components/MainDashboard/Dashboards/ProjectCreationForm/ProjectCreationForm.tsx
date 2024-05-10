@@ -25,7 +25,8 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCancel, onA
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${getUserData()?.token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
                 },
                 body: JSON.stringify({ name: projectName, teamLeaderID: getUserData()?.user.nameid, RequestedDevelopers: [] })
             })

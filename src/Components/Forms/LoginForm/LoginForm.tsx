@@ -24,7 +24,8 @@ const LoginForm: React.FC = () => {
             const response = await fetch(loginPath, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
                 },
                 body: JSON.stringify({ username, password })
             });
