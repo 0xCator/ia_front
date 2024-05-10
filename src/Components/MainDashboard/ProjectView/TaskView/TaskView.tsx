@@ -81,6 +81,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+        'Access-Control-Allow-Origin': '*',
       }
     }).then(response => {
       if (!response.ok) {
@@ -125,6 +126,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+          'Access-Control-Allow-Origin': '*',
         },
         body: JSON.stringify({
           content: newComment,
@@ -216,7 +218,8 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
       fetch(`${taskUplaodAttachment}/${task.taskid}/uploadattachment`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+           'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+            'Access-Control-Allow-Origin': '*',
         },
         body: formData
       }).then(response => {
