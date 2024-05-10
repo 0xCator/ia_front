@@ -65,7 +65,7 @@ const ProjectView = () => {
   const [state, setState] = useState(initialState);
   const { lastMessage } = useSocket()!;
   const [alert, setAlert] = useState<'error'| 'info'>('info');
-  const [hasAttachment, setHasAttachment] = useState<boolean>(false);
+
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -282,34 +282,13 @@ const ProjectView = () => {
     }
   };
 
-  const isTaskHasAttachment = (task: Task) => {
-      fetch(`${taskGetAttachmentName}${task.taskid}/attachmentname`,{
-           method: 'GET',
-           headers: {
-               'Content-Type': 'application/json',
-               'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-               'Access-Control-Allow-Origin': '*',
-           }
-       }).then(response => {
-           if (!response.ok) {
-               throw new Error('Network response was not ok');
-           }
-           return response.text();
-       }).then(data => {
-           task.attachment = data;
-           setHasAttachment(true);
-       }).catch(error => {
-           console.error('There has been a problem with your fetch operation:', error);
-       });
-
-  }
 
   // Handle drag end
   const onDragEnd = async (result: any) => {
     const { destination, source, draggableId } = result;
     const t = Array.from(todoTasks);
     const d = Array.from(doingTasks);
-    const dn = Array.from(doneTasks);
+    let dn = Array.from(doneTasks);
 
     if (!destination) {
       return;
@@ -360,19 +339,58 @@ const ProjectView = () => {
       updateTaskState(d[destination.index].taskid,"doing");
     } else if (destination.droppableId === 'done') {
       const task = tasks.find(task => task.taskid === parseInt(draggableId))!;
-      isTaskHasAttachment(task);
-      if(!hasAttachment){
-        showAlert('error');
-        return;
-      }
-      dn.splice(destination.index, 0, tasks.find(task => task.taskid === parseInt(draggableId))!);
-      dn[destination.index].state = "done";
-      updateTaskState(dn[destination.index].taskid,"done");
+      let hasAttachment = false;
+      dn.splice(destination.index, 0, task);
+      setDoneTasks(dn);
+
+      fetch(`${taskGetAttachmentName}${task.taskid}/attachmentname`,{
+           method: 'GET',
+           headers: {
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+               'Access-Control-Allow-Origin': '*',
+           }
+       }).then(response => {
+           if (!response.ok) {
+               throw new Error('Network response was not ok');
+           }
+           return response.text();
+       }).then(data => {
+           task.attachment = data;
+           hasAttachment = (task.attachment !== "");
+
+           if(!hasAttachment){
+           showAlert('error');
+            if(source.droppableId === 'to-do'){
+                t.splice(source.index, 0, task);
+            }else if(source.droppableId === 'doing'){
+                d.splice(source.index, 0, task);
+            }
+            setTodoTasks(t);
+            setDoingTasks(d);
+
+            dn = dn.filter((task: Task) => task.taskid !== parseInt(draggableId));
+            setDoneTasks(dn);
+
+            return;
+           }
+
+           dn[destination.index].state = "done"; 
+           updateTaskState(dn[destination.index].taskid,"done");
+           setDoneTasks(dn);
+
+       }).catch(error => {
+           console.error('There has been a problem with your fetch operation:', error);
+       });
+       setTodoTasks(t);
+       setDoingTasks(d);
+       return
     }
 
     setTodoTasks(t);
     setDoingTasks(d);
     setDoneTasks(dn);
+
   };
 
     const handleTaskUpdate = (task: Task) => {
