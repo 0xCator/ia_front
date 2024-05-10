@@ -61,6 +61,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+        'Access-Control-Allow-Origin': '*',
       }
     }).then(response => {
       if (!response.ok) {
