@@ -80,9 +80,7 @@ const ProjectView = () => {
       showAlert: true,
     }));
     setAlert(t);
-    console.log(alert);
 
-    // Automatically close the alert after 3 seconds
     setTimeout(() => {
       handleCloseAlert();
     }, 3000);
@@ -205,52 +203,6 @@ const ProjectView = () => {
           }
       });
       setTasks(tasks);
-      
-      tasks.forEach((element: Task) => {
-          fetch(`${getTaskCommentApi}${element.taskid}`,{
-              method: 'GET',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('userData')} `,
-                  'Access-Control-Allow-Origin': '*',
-              }
-          }).then(response => {
-              if (!response.ok) {
-                  throw new Error('Network response was not ok');
-              }
-              return response.json();
-          }).then(data => {
-              const comments = data.map((comment: any) => {
-                  return {
-                      content: comment.content,
-                      author: comment.commenterInfo.username,
-                      state: 'sent',
-                  }
-              });
-              element.comments = comments;
-          }).catch(error => {
-              console.error('There has been a problem with your fetch operation:', error);
-          });
-
-         fetch(`${taskGetAttachmentName}${element.taskid}/attachmentname`,{
-              method: 'GET',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-                  'Access-Control-Allow-Origin': '*',
-              }
-          }).then(response => {
-              if (!response.ok) {
-                  throw new Error('Network response was not ok');
-              }
-              return response.text();
-          }).then(data => {
-              element.attachment = data;
-          }).catch(error => {
-              console.error('There has been a problem with your fetch operation:', error);
-          });
-
-      });
 
       for (let i = 0; i < tasks.length; i++) {
           tasks[i].draggable = Number(tasks[i].developerId) === Number(user.nameid);
@@ -298,9 +250,9 @@ const ProjectView = () => {
         fetch(`${projectUpdateTaskStateApi}${taskId}/status?newStatus=${statusStringToInt(state)}`, { 
             method: 'PATCH', 
             headers: { 
+                'Access-Control-Allow-Origin': '*',
                 'Accept': '*/*',
                 'Authorization': `Bearer ${localStorage.getItem('userData')}`,
-                'Access-Control-Allow-Origin': '*',
             },
         }).then(response => {
             if (!response.ok) {
@@ -328,6 +280,30 @@ const ProjectView = () => {
       return tasks.filter(task => (task.developerName.toLowerCase().includes(searchLowerCase) || task.title.toLowerCase().includes(searchLowerCase)));
     }
   };
+
+  const isTaskHasAttachment = (task: Task) => {
+      let result = false;
+      fetch(`${taskGetAttachmentName}${task.taskid}/attachmentname`,{
+           method: 'GET',
+           headers: {
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${localStorage.getItem('userData')}`,
+               'Access-Control-Allow-Origin': '*',
+           }
+       }).then(response => {
+           if (!response.ok) {
+               throw new Error('Network response was not ok');
+           }
+           return response.text();
+       }).then(data => {
+           task.attachment = data;
+           result = data !== '';
+       }).catch(error => {
+           console.error('There has been a problem with your fetch operation:', error);
+       });
+
+       return result;
+  }
 
   // Handle drag end
   const onDragEnd = (result: any) => {
@@ -385,7 +361,7 @@ const ProjectView = () => {
       updateTaskState(d[destination.index].taskid,"doing");
     } else if (destination.droppableId === 'done') {
       const task = tasks.find(task => task.taskid === parseInt(draggableId))!;
-      if(task && !task.attachment){
+      if(!isTaskHasAttachment(task)){
         showAlert('error');
         return;
       }
@@ -504,4 +480,8 @@ const ProjectView = () => {
 
 
 export default ProjectView;
+
+
+
+
 

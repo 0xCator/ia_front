@@ -17,7 +17,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import { User, getUserData } from '../../../../Services/userData';
-import { addTaskCommentApi, taskUplaodAttachment, taskDwonloadattachment, taskGetAttachmentName } from '../../../../Services/constants';
+import { addTaskCommentApi, taskUplaodAttachment, taskDwonloadattachment, taskGetAttachmentName, getTaskCommentApi } from '../../../../Services/constants';
 import { useEffect } from 'react';
 
 
@@ -32,11 +32,41 @@ interface TaskViewProps {
 
 const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, developers, onDeleteTask, showAlert }) => {
   const [newComment, setNewComment] = useState<string>('');
+  const [comments, setComments] = useState<Comment[]>(task.comments); 
+  const [attachment, setAttachment] = useState<boolean>(false); 
   const [editing, setEditing] = useState<boolean>(false);
   const [editedTask, setEditedTask] = useState<Task>(task);
   const [selectedDeveloper, setSelectedDeveloper] = useState<string>(task.developerId.toString());
   const [loadingAttachment, setLoadingAttachment] = useState<boolean>(false); // State for loading attachment
   const userData: User = getUserData()!.user;
+
+    useEffect(() => {
+          fetch(`${getTaskCommentApi}${task.taskid}`,{
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('userData')} `,
+                  'Access-Control-Allow-Origin': '*',
+              }
+          }).then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+              return response.json();
+          }).then(data => {
+              const comments = data.map((comment: any) => {
+                  return {
+                      content: comment.content,
+                      author: comment.commenterInfo.username,
+                      state: 'sent',
+                  }
+              });
+              task.comments = comments;
+              setComments(comments);
+          }).catch(error => {
+              console.error('There has been a problem with your fetch operation:', error);
+          });
+    }, [task.taskid, task]);
 
   useEffect(() => {
     // Function to update comment colors based on their state
@@ -70,6 +100,9 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
       return response.text();
     }).then(data => {
       task.attachment = data;
+      if (data !== '') {
+        setAttachment(true);
+      }
     }).catch(error => {
       console.error('There has been a problem with your fetch operation:', error);
     });
@@ -149,9 +182,8 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
         console.error('There has been a problem with your fetch operation:', error);
       });
 
-
-      onUpdateTask(updatedTask);
-      setNewComment('');
+        setComments([...comments, newCommentObj]);
+        setNewComment('');
     }
   };
 
@@ -265,7 +297,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
               #{task.taskid} {task.title}
             </div>
             <div>
-              {task.attachment && (
+              {attachment && (
                 <IconButton onClick={handleDownloadAttachment} color="inherit">
                   <GetAppIcon />
                 </IconButton>
@@ -349,7 +381,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
             <Typography style={{ marginBottom: '16px' }}>
               <strong>Comments:</strong>
               <ul style={{ paddingLeft: '20px', marginTop: '8px', listStyleType: 'none' }}>
-                {task.comments.map((comment, index) => (
+                {comments.map((comment, index) => (
                   <li
                     key={index}
                     style={{ marginBottom: '8px', borderLeft: `4px solid ${comment.state === 'sent' ? getBorderColor() : 'gray'}`, paddingLeft: '8px' }}
@@ -381,4 +413,6 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
 };
 
 export default TaskView;
+
+
 

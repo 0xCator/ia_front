@@ -24,8 +24,8 @@ const TaskCreationForm: React.FC<TaskCreationFormProps> = ({ onCancel, developer
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('userData')}`,
                 'Access-Control-Allow-Origin': '*',
+                'Authorization': `Bearer ${localStorage.getItem('userData')}`,
             },
             body: JSON.stringify({
                 name: titleRef.current?.value,
