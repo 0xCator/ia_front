@@ -9,6 +9,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import axios from 'axios';
 
 const RegistrationForm: React.FC = () => {
     const [signupError, setSignupError] = useState<string | null>(null);
@@ -36,29 +37,19 @@ const RegistrationForm: React.FC = () => {
             Role: role,
         };
 
-        try {
-            const response = await fetch(registerPath, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to sign up');
-            }
-
-            const responseData = await response;
-            
+        axios
+        .post(registerPath, data, { headers: { 'Content-Type': 'application/json' } })
+        .then((response) => {
+            console.log(response);
             navigate("/login");
-        } catch (error) {
-            console.log(error);
-            console.error('Signup failed', error);
-            setSignupError('Signup failed. Please try again.');
-        } finally {
-            setLoading(false); // Stop loading
-        }
+        })
+        .catch((error) => {
+            setSignupError(error.response.data);
+        })
+        .finally(() => {
+            setLoading(false);
+        });
+
     };
 
     return (

@@ -14,11 +14,12 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCancel, onA
     const [creationError, setCreationError] = useState<string | null>(null);
     const [newProjectName, setNewProjectName] = useState<string>(''); // State to manage the new project name
     const projectNameRef = useRef<HTMLInputElement>(null); // Ref for input element
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleAddProject = () => {
         const projectName = projectNameRef.current?.value;
         if (projectName && projectName.trim() !== '') {
-            
+            setLoading(true);
             // Call the API endpoint to add the new project
             fetch(projectsPath, {
                 method: 'POST',
@@ -35,11 +36,15 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCancel, onA
                 // If successful, reset the input field and close the form
                 setNewProjectName('');
                 onAddProject();
+                
                 onCancel();
             })
             .catch(error => {
                 console.error('Error adding project:', error);
                 setCreationError('Failed to add project');
+            })
+            .finally(() => {
+                setLoading(false);
             });
         }
     };
@@ -49,13 +54,13 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCancel, onA
             <DialogTitle>Add New Project</DialogTitle>
             <DialogContent>
                 <TextField type="text" required value={newProjectName} onChange={(e) => setNewProjectName(e.target.value)}
-                label="Project Name" fullWidth inputRef={projectNameRef} sx={{mt: 2}}/>
+                label="Project Name" fullWidth disabled = {loading} inputRef={projectNameRef} sx={{mt: 2}}/>
                 {creationError && 
                 <Alert severity="error">{creationError}</Alert>
                 }
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleAddProject}>Add</Button>
+                <Button onClick={handleAddProject} disabled = {loading}>Add</Button>
             </DialogActions>
         </Dialog>
     );

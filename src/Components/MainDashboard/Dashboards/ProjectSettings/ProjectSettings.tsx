@@ -16,6 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { handleDeveloperPath, projectsPath } from '../../../../Services/constants';
 import { getUserData } from '../../../../Services/userData';
 import { projectApi } from '../../../../Services/constants';
+import axios from 'axios';
 
 interface ProjectSettingsProps {
     projectID: number;
@@ -65,26 +66,20 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
             return;
         }
 
-        try {
-            setLoading(true);
-            const response = await fetch(handleDeveloperPath(projectID, newDeveloper), {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${getUserData()?.token}`,
-                    'Content-Type': 'application/json'
-                },
-            });
-            if (!response.ok) {
-                throw new Error('Failed to add developer to the project');
-            }
+        setLoading(true);
+        axios
+        .post(handleDeveloperPath(projectID, newDeveloper), {}, { headers: { 'Authorization': `Bearer ${getUserData()?.token}` } })
+        .then((response) => {
             fetchDevelopers();
             setNewDeveloper('');
-        } catch (error) {
-            console.error('Error adding developer:', error);
-            setCreationError('Developer not found or already assigned to the project');
-        } finally {
+        })
+        .catch((error) => {
+            const message: string = "User" + (error.response.data).slice(9)
+            setCreationError(message);
+        })
+        .finally(() => {
             setLoading(false);
-        }
+        });
     };
 
     const handleDeleteDeveloper = async (developerUsername: string) => {
@@ -110,7 +105,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
     }
 
     const handleEditProject = async () => {
-        if (newProjectName.trim() === '' || !newProjectName || newProjectName === projectName) {
+        if (newProjectName.trim() === '' || !newProjectName) {
             return;
         }
 
@@ -138,6 +133,7 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
 
     const handleDeleteProject = async () => {
         try {
+            setLoading(true);
             const response = await fetch(projectApi+`${projectID}`, {
                 method: 'DELETE',
                 headers: {
@@ -150,10 +146,13 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
                 throw new Error('Failed to change project name');
             }
 
+            
             onDelete();
             onClose();
         } catch (error) {
             console.error('Error deleting project')
+        } finally {
+            setLoading(false);
         }
     }
     
@@ -166,11 +165,11 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
                         <DialogTitle>Project Settings</DialogTitle>
                     </Grid>
                     <Grid item xs={2} sx={{padding:1}}>
-                    <IconButton onClick={()=>{setEditing(true);}} color="inherit">
+                    <IconButton onClick={()=>{setEditing(true);}} color="inherit" disabled = {loading}>
                             <EditIcon />
                     </IconButton>
 
-                    <IconButton onClick={handleDeleteProject} color="error">
+                    <IconButton onClick={handleDeleteProject} color="error" disabled = {loading}>
                             <DeleteIcon />
                     </IconButton>
                     </Grid>
@@ -192,7 +191,9 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
                         </>
                     ) : (
                         <>
-                            <CircularProgress size={24}/>
+                            <IconButton disabled color="primary">
+                                <CircularProgress size={24}/>
+                            </IconButton>
                             <IconButton disabled onClick={()=>{setEditing(false); setNewProjectName(projectName);}} color="error">
                                 <CloseIcon />
                             </IconButton>
@@ -242,12 +243,13 @@ const ProjectSettings: React.FC<ProjectSettingsProps> = ({ projectID, projectNam
                         id="developer"
                         label="Developer Username"
                         name="developer"
+                        disabled = {loading}
                         value={newDeveloper}
                         onChange={(e) => setNewDeveloper(e.target.value)}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">
-                                    <IconButton onClick={handleAddDeveloper} edge="end" color="primary">
+                                    <IconButton onClick={handleAddDeveloper} disabled = {loading} edge="end" color="primary">
                                         <AddIcon />
                                     </IconButton>
                                 </InputAdornment>
