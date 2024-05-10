@@ -65,6 +65,7 @@ const ProjectView = () => {
   const [state, setState] = useState(initialState);
   const { lastMessage } = useSocket()!;
   const [alert, setAlert] = useState<'error'| 'info'>('info');
+  const [hasAttachment, setHasAttachment] = useState<boolean>(false);
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -282,7 +283,6 @@ const ProjectView = () => {
   };
 
   const isTaskHasAttachment = (task: Task) => {
-      let result = false;
       fetch(`${taskGetAttachmentName}${task.taskid}/attachmentname`,{
            method: 'GET',
            headers: {
@@ -297,16 +297,15 @@ const ProjectView = () => {
            return response.text();
        }).then(data => {
            task.attachment = data;
-           result = data !== '';
+           setHasAttachment(true);
        }).catch(error => {
            console.error('There has been a problem with your fetch operation:', error);
        });
 
-       return result;
   }
 
   // Handle drag end
-  const onDragEnd = (result: any) => {
+  const onDragEnd = async (result: any) => {
     const { destination, source, draggableId } = result;
     const t = Array.from(todoTasks);
     const d = Array.from(doingTasks);
@@ -361,7 +360,8 @@ const ProjectView = () => {
       updateTaskState(d[destination.index].taskid,"doing");
     } else if (destination.droppableId === 'done') {
       const task = tasks.find(task => task.taskid === parseInt(draggableId))!;
-      if(!isTaskHasAttachment(task)){
+      isTaskHasAttachment(task);
+      if(!hasAttachment){
         showAlert('error');
         return;
       }
@@ -470,7 +470,7 @@ const ProjectView = () => {
         onClose={handleCloseAlert} 
         sx={{ position: 'fixed', bottom: 20, right: 20 }}
       >
-        {alert === 'error' ? 'Task has been moved to "Done" column. Please upload an attachment before marking the task as "done".' :
+        {alert === 'error' ? 'Please upload an attachment before marking the task as "done".' :
         'Attachment has been uploaded successfully.'} 
       </Alert>
       )}
