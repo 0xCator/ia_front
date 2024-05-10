@@ -260,6 +260,7 @@ const TaskView: React.FC<TaskViewProps> = ({ task, onClose, onUpdateTask, develo
         }
         setLoadingAttachment(false); // Set loading state to false when upload completes
         showAlert('info');
+        setAttachment(true);
         return response.json();
       }
       ).catch(error => {
